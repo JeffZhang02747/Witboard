@@ -72,82 +72,17 @@
     </div>
   </body>
   <script>
-
-    var person = prompt("Please enter your name", "");
-
+  
     var socket = io.connect(window.location.hostname);
     var typed = false;
     var timeout = undefined;
 
-    var timeoutFunction = function(){
-      typed = false;//set flag back to false...
-      socket.emit("typing", false);
-    };
 
+    socket.emit("draw point", data_point);
 
-    angular.module('socket', ['ngAnimate']).
-    controller("NicknameController", ['$scope', '$log' ,  function($scope, $log) {
-
-      $scope.id_to_nickname = [];
-      $scope.username = person;
-      $scope.messages = [];
-      $scope.message = "";
-
-
-      $scope.submit = function(){
-
-        if(typed){
-          clearTimeout(timeout);
-          timeout = setTimeout(timeoutFunction , 0);//extended the time...
-        }
-
-        socket.emit('chat message', $scope.message);
-
-        $scope.messages.push({"user":person , "text": $scope.message})
-        $scope.message = "";
-      };
-
-      $scope.typing = function(){
-        if(typed == false){
-          typed = true;
-          socket.emit("typing", true);
-        }
-        else{
-          //already typing..
-          clearTimeout(timeout);
-          timeout = setTimeout(timeoutFunction , 5000);//extended the time...
-        }
-      };
-
-      socket.on('update nickname', function(id_to_nickname){
-        $scope.id_to_nickname = id_to_nickname;
-        $scope.$apply();
-      });
-
-      socket.on('chat message', function(msg){
-        $scope.messages.push( msg);
-        $scope.$apply();
-      });
-
-    }]);
-
-
-    socket.on('user joined', function(name){
-      new PNotify({
-        title: "user joined",
-        text: name + " joined the chat"
-      });
-    });
-
-    socket.on('user leaved', function(name){
-      new PNotify({
-        title: "user leaved",
-        text: name + " leaved"
-      });
-    });
-
-
-    socket.emit("add nickname" , person);
+    socket.on("draw point", function(data_point){
+      #draw the point here
+    })
 
   </script>
 </html>
