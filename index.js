@@ -15,8 +15,10 @@ app.use('/node_modules',  express.static(__dirname + '/node_modules'));
 
 
 io.on('connection', function(socket){
-    socket.on("draw point", function(data_point){
-        socket.broadcast.emit('draw point', data_point);
+    socket.on("draw point", function(data_point, counter){
+        console.log("counter " + counter);
+
+        socket.broadcast.emit('draw point', data_point, counter);
     });
 });
 

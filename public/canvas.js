@@ -17,6 +17,9 @@ function addClick(x, y, dragging)
   clickDrag.push(dragging);
 }
 
+var counter = 0;
+var data_point = {};
+
 $('#canvas').mousedown(function(e){
   var mouseX = e.pageX - this.offsetLeft;
   var mouseY = e.pageY - this.offsetTop;
@@ -24,10 +27,13 @@ $('#canvas').mousedown(function(e){
   paint = true;
   addClick(mouseX, mouseY);
   redraw();
-  var data_point = {};
   data_point.location_x = mouseX;
   data_point.location_y = mouseY;
-  socket.emit("draw point", data_point);
+  console.log("x:" + mouseX);
+  console.log("y:" + mouseY);
+
+  counter += 1;
+  socket.emit("draw point", data_point, counter);
 });
 
 $('#canvas').mousemove(function(e){
@@ -36,10 +42,13 @@ $('#canvas').mousemove(function(e){
     var mouseY = e.pageY - this.offsetTop;
     addClick(mouseX, mouseY, true);
     redraw();
-    var data_point = {};
     data_point.location_x = mouseX;
     data_point.location_y = mouseY;
-    socket.emit("draw point", data_point);
+    console.log("x:" + mouseX);
+    console.log("y:" + mouseY);
+
+    counter += 1;
+    socket.emit("draw point", data_point, counter);
   }
 });
 
@@ -71,11 +80,13 @@ function redraw(){
   }
 }
 
-socket.on("draw point", function(data_point){
+socket.on("draw point", function(data_point, counter){
   var mouseX = data_point.location_x;
   var mouseY = data_point.location_y;
-    
-  paint = true;
+
+  // console.log("counter " + counter);
+  console.log("x:" + mouseX);
+  console.log("y:" + mouseY);
   addClick(mouseX, mouseY);
   redraw();
 })
