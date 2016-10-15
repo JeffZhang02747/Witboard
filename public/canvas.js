@@ -29,8 +29,7 @@ $('#canvas').mousedown(function(e){
   redraw();
   data_point.location_x = mouseX;
   data_point.location_y = mouseY;
-  console.log("x:" + mouseX);
-  console.log("y:" + mouseY);
+    data_point.starting = true;
 
   counter += 1;
   socket.emit("draw point", data_point, counter);
@@ -44,8 +43,7 @@ $('#canvas').mousemove(function(e){
     redraw();
     data_point.location_x = mouseX;
     data_point.location_y = mouseY;
-    console.log("x:" + mouseX);
-    console.log("y:" + mouseY);
+    data_point.starting = false;
 
     counter += 1;
     socket.emit("draw point", data_point, counter);
@@ -84,10 +82,12 @@ socket.on("draw point", function(data_point, counter){
   var mouseX = data_point.location_x;
   var mouseY = data_point.location_y;
 
-  // console.log("counter " + counter);
-  console.log("x:" + mouseX);
-  console.log("y:" + mouseY);
-  addClick(mouseX, mouseY);
+  if(data_point.starting){
+    addClick(mouseX, mouseY);
+  }
+  else{
+    addClick(mouseX, mouseY, true);
+  }
   redraw();
 })
 });
