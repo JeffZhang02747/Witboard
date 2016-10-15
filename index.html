@@ -1,0 +1,153 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Anonymous chat</title>
+    <style>
+
+      li {
+        color: green; /* bullet color */
+      }
+      li span {
+        color: black; /* text color */
+      }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body { font: 13px Helvetica, Arial; }
+      form { background: #000; padding: 3px; position: fixed; bottom: 0; width: 100%; }
+      form input { border: 0; padding: 10px; width: 90%; margin-right: .5%; }
+      form button { width: 9%; background: rgb(130, 224, 255); border: none; padding: 10px; }
+      #messages { list-style-type: none; margin: 0; padding: 0; }
+      #messages li { padding: 5px 10px; }
+      #messages li:nth-child(odd) { background: #eee; }
+
+    </style>
+    <script src="node_modules/angular/angular.min.js"></script>
+    <script src="node_modules/angular-animate/angular-animate.min.js" ></script>
+
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0-alpha1/jquery.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pnotify/2.0.0/pnotify.all.min.js"></script>
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/pnotify/2.0.0/pnotify.all.min.css" media="all" rel="stylesheet" type="text/css" />
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+    <link href="node_modules/bootstrap-social/bootstrap-social.css" media="all" rel="stylesheet" type="text/css" />
+
+
+    <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
+  </head>
+
+
+  <body ng-app="socket">
+    <div ng-controller="NicknameController" >
+
+      <div class="row" ng-cloak>  
+        <div class="col-md-10">
+
+        <ul id="messages" ng-repeat="ms in messages"><li><span> {{ms.user}}: {{ms.text}} </span></li></ul>
+
+        </div>
+
+
+        <div class="col-md-1">
+        
+          <ul ng-repeat="user in id_to_nickname"><li><span> {{user.name}} <div ng-if="user.typing && user.name !=username">(typing) </div></span>
+          </li>
+          </ul>
+
+          written by
+          <a class="btn btn-social-icon btn-github" href="https://github.com/JeffZhang02747">
+            <i class="fa fa-github"></i>
+          </a>
+
+        </div>
+
+
+
+      </div>
+
+      <form name="messageForm">
+          <input ng-model="message" required ng-change="typing()"/><button ng-click="submit()" ng-disabled="messageForm.$invalid">Send</button>
+      </form>
+    </div>
+  </body>
+  <script>
+
+    var person = prompt("Please enter your name", "");
+
+    var socket = io.connect(window.location.hostname);
+    var typed = false;
+    var timeout = undefined;
+
+    var timeoutFunction = function(){
+      typed = false;//set flag back to false...
+      socket.emit("typing", false);
+    };
+
+
+    angular.module('socket', ['ngAnimate']).
+    controller("NicknameController", ['$scope', '$log' ,  function($scope, $log) {
+
+      $scope.id_to_nickname = [];
+      $scope.username = person;
+      $scope.messages = [];
+      $scope.message = "";
+
+
+      $scope.submit = function(){
+
+        if(typed){
+          clearTimeout(timeout);
+          timeout = setTimeout(timeoutFunction , 0);//extended the time...
+        }
+
+        socket.emit('chat message', $scope.message);
+
+        $scope.messages.push({"user":person , "text": $scope.message})
+        $scope.message = "";
+      };
+
+      $scope.typing = function(){
+        if(typed == false){
+          typed = true;
+          socket.emit("typing", true);
+        }
+        else{
+          //already typing..
+          clearTimeout(timeout);
+          timeout = setTimeout(timeoutFunction , 5000);//extended the time...
+        }
+      };
+
+      socket.on('update nickname', function(id_to_nickname){
+        $scope.id_to_nickname = id_to_nickname;
+        $scope.$apply();
+      });
+
+      socket.on('chat message', function(msg){
+        $scope.messages.push( msg);
+        $scope.$apply();
+      });
+
+    }]);
+
+
+    socket.on('user joined', function(name){
+      new PNotify({
+        title: "user joined",
+        text: name + " joined the chat"
+      });
+    });
+
+    socket.on('user leaved', function(name){
+      new PNotify({
+        title: "user leaved",
+        text: name + " leaved"
+      });
+    });
+
+
+    socket.emit("add nickname" , person);
+
+  </script>
+</html>
