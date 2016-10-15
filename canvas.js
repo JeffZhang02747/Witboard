@@ -32,7 +32,9 @@ $('#canvas').mousedown(function(e){
 
 $('#canvas').mousemove(function(e){
   if(paint){
-    addClick(e.pageX - this.offsetLeft, e.pageY - this.offsetTop, true);
+  	var mouseX = e.pageX - this.offsetLeft;
+  	var mouseY = e.pageY - this.offsetTop;
+    addClick(mouseX, mouseY, true);
     redraw();
   }
 });
