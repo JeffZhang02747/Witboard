@@ -1,6 +1,11 @@
 $(document).ready(function(){
 var currBoardId = getCurrBoardId(); // TODO do something with this!
-var socket = io.connect(window.location.hostname);
+var socket;
+if (currBoardId) {
+  socket = io('/' + currBoardId);
+} else {
+  socket = io.connect(window.location.hostname);
+}
 var typed = false;
 var timeout = undefined;
 

@@ -36,6 +36,17 @@ io.on('connection', function(socket){
         // boardNameSpace.emit('hi', 'everyone!');
         nextBoardId++;
 
+        var newNamespace = io.of('/' + newBoardId);
+        newNamespace.on('connection', function(socket){
+            console.log('someone connected on board ' + newBoardId);
+
+            // TODO below is a copy of above code.. refactor it!
+            socket.on("draw point", function(data_point, counter){
+                console.log("counter " + counter);
+
+                socket.broadcast.emit('draw point', data_point, counter);
+            });
+        });
         socket.emit('board created', newBoardId);
     });
 });
