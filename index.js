@@ -10,9 +10,15 @@ app.get('/', function(req, res){
     res.sendfile('index.html');
 });
 
+app.get(new RegExp('/[0-9]+'), function(req, res){
+    console.log('i handlez!');
+    res.sendfile('index.html');
+});
+
 app.use(express.static(__dirname + '/public'));
 app.use('/node_modules',  express.static(__dirname + '/node_modules'));
 
+var nextBoardId = 1;
 
 io.on('connection', function(socket){
     socket.on("draw point", function(data_point, counter){
@@ -20,8 +26,19 @@ io.on('connection', function(socket){
 
         socket.broadcast.emit('draw point', data_point, counter);
     });
-});
 
+    socket.on('new board', function() {
+        var newBoardId = nextBoardId;
+        var boardNameSpace = io.of('/' + newBoardId);
+        boardNameSpace.on('connection', function(socket){
+            console.log('someone connected on board ' + newBoardId);
+        });
+        // boardNameSpace.emit('hi', 'everyone!');
+        nextBoardId++;
+
+        socket.emit('board created', newBoardId);
+    });
+});
 
 var port = process.env.PORT || 5000;
 

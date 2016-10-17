@@ -1,4 +1,5 @@
 $(document).ready(function(){
+var currBoardId = getCurrBoardId(); // TODO do something with this!
 var socket = io.connect(window.location.hostname);
 var typed = false;
 var timeout = undefined;
@@ -10,6 +11,16 @@ var clickY = new Array();
 var clickDrag = new Array();
 var paint;
 
+// returns the current board id if it exists, returns null otherwise
+function getCurrBoardId() {
+  var re = new RegExp("/([0-9]+)$");
+  var regexMatches = re.exec(window.location.href);
+  if (!regexMatches || !(regexMatches[1])) {
+    return null; 
+  }
+  return regexMatches[1];
+}
+
 function addClick(x, y, dragging)
 {
   clickX.push(x);
@@ -19,6 +30,11 @@ function addClick(x, y, dragging)
 
 var counter = 0;
 var data_point = {};
+
+$('#newBoardButton').click(function(e) {
+  // TODO redirect to new board.
+  socket.emit('new board');
+});
 
 $('#canvas').mousedown(function(e){
   var mouseX = e.pageX - this.offsetLeft;
@@ -90,4 +106,10 @@ socket.on("draw point", function(data_point, counter){
   }
   redraw();
 })
+
+socket.on('board created', function(newBoardId) {
+  // socket = io(window.location.hostname + newBoardId);
+  // debugger;
+  window.location.href += newBoardId;
+});
 });
