@@ -15,11 +15,13 @@ $(document).ready(function(){
   var gClientId = -1;
 
   context = document.getElementById('canvas').getContext("2d");
+  // Default styling
+  context.strokeStyle = "#df4b26";
+  context.lineJoin = "round";
+  context.lineWidth = 5;
 
   var points = {};
-  // var clickX = new Array();
-  // var clickY = new Array();
-  // var clickDrag = new Array();
+  var gColor = "#df4b26";
   var paint;
 
   socket.emit("initialize", gClientId);
@@ -34,21 +36,27 @@ $(document).ready(function(){
     return regexMatches[1];
   }
 
-  function addClick(clientId, x, y, dragging)
+  function addClick(clientId, x, y, color, dragging)
   {
     if(!points.hasOwnProperty(clientId)){
       points[clientId] = {};
       points[clientId].clickX = new Array();
       points[clientId].clickY = new Array();
       points[clientId].clickDrag = new Array();
+      points[clientId].color = new Array();
     }
     points[clientId].clickX.push(x);
     points[clientId].clickY.push(y);
     points[clientId].clickDrag.push(dragging);
+    points[clientId].color.push(color);
   }
 
-  var counter = 0;
-  var data_point = {};
+  $('#change-blue').click(function(e){
+    gColor = "#3368FF";
+  });
+  $('#change-red').click(function(e){
+    gColor = "#df4b26";
+  });
 
   $('#newBoardButton').click(function(e) {
     // TODO redirect to new board.
@@ -60,12 +68,13 @@ $(document).ready(function(){
     var mouseY = e.pageY - this.offsetTop;
       
     paint = true;
-    addClick(gClientId, mouseX, mouseY, false);
+    addClick(gClientId, mouseX, mouseY, gColor, false);
     redraw();
     data_point.location_x = mouseX;
     data_point.location_y = mouseY;
     data_point.clientId = gClientId;
     data_point.starting = true;
+    data_point.color = gColor;
 
     counter += 1;
     socket.emit("draw point", data_point, counter);
@@ -75,12 +84,13 @@ $(document).ready(function(){
     if(paint){
       var mouseX = e.pageX - this.offsetLeft;
       var mouseY = e.pageY - this.offsetTop;
-      addClick(gClientId, mouseX, mouseY, true);
+      addClick(gClientId, mouseX, mouseY, gColor, true);
       redraw();
       data_point.location_x = mouseX;
       data_point.location_y = mouseY;
       data_point.clientId = gClientId;
       data_point.starting = false;
+      data_point.color = gColor;
 
       counter += 1;
       socket.emit("draw point", data_point, counter);
@@ -98,13 +108,9 @@ $(document).ready(function(){
   function redraw(){
     context.clearRect(0, 0, context.canvas.width, context.canvas.height); // Clears the canvas
     
-    // todo: change styling
-    context.strokeStyle = "#df4b26";
-    context.lineJoin = "round";
-    context.lineWidth = 5;
-    
     $.each(points, function(clientId, thisPoint) {
       for(var i=0; i < thisPoint.clickX.length; i++) {
+        context.strokeStyle = thisPoint.color[i];
         context.beginPath();
         if(thisPoint.clickDrag[i] && i){
           context.moveTo(thisPoint.clickX[i-1], thisPoint.clickY[i-1]);
@@ -122,12 +128,13 @@ $(document).ready(function(){
     var mouseX = data_point.location_x;
     var mouseY = data_point.location_y;
     var otherClientId = data_point.clientId;
+    var color = data_point.color;
 
     if(data_point.starting){
-      addClick(otherClientId, mouseX, mouseY, false);
+      addClick(otherClientId, mouseX, mouseY, color, false);
     }
     else{
-      addClick(otherClientId, mouseX, mouseY, true);
+      addClick(otherClientId, mouseX, mouseY, color, true);
     }
     redraw();
   });
