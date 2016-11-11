@@ -49,3 +49,7 @@ label[for=color04] {background: yellowgreen;}
 label[for=color05] {background: firebrick;}
 label[for=color06] {background: powderblue;}
 label[for=color07] {background: white;}
+
+section.avatar-section{
+	float: right;
+}

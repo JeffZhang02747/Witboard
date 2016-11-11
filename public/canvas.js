@@ -23,8 +23,8 @@ $(document).ready(function(){
   var points = {};
   var gColor = "#df4b26";
   var paint;
+  var r_points = {};
 
-  socket.emit("initialize", gClientId);
 
   // returns the current board id if it exists, returns null otherwise
   function getCurrBoardId() {
@@ -161,10 +161,23 @@ $(document).ready(function(){
     redraw();
   });
 
-  socket.on("initialize", function(clientId){
+  socket.on("initialize", function(clientId, r_points){
     gClientId = clientId;
-    console.log("I got clientId = ", gClientId); // testing
+    var other_points = {};
+    var client_color = "white";
+    $.each(r_points, function(other_clientId, other_points) {
+      // todo: new clients need to be read
+      if(other_clientId == clientId){
+        client_color = "red";
+      }
+      $('.mainSection').append("<label class='client' style='float: right; color: " + client_color + ";'>" + other_clientId + "</label>");
+      $.each(other_points, function(index, other_point) {
+        addClick(other_clientId, other_point.location_x, other_point.location_y, other_point.color, !other_point.starting);
+        redraw();
+      });
+    });
   });
+
 
 
   socket.on('board created', function(newBoardId) {
