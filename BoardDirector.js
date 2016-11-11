@@ -9,6 +9,9 @@ module.exports = {
         this.nextClientId = 0;
 
         // state about the current drawing (TODO)
+        // an object used as a map associating client ids to arrays of data_point
+        // objects.
+        var drawingData = {};
 
         // persists current state to the database
         this.saveToDB = function() {} // TODO implement!
@@ -20,13 +23,17 @@ module.exports = {
         // initialization
         this.boardNameSpace.on('connection', function(socket){
             console.log('someone connected on board ' + boardId);
+            var clientId = boardDirector.nextClientId;
+            boardDirector.nextClientId++;
+
+            drawingData[clientId] = new Array();
 
             socket.on("draw point", function(data_point, counter){
+                drawingData[clientId].push(data_point);
                 socket.broadcast.emit('draw point', data_point, counter);
             });
 
-            socket.emit("initialize", boardDirector.nextClientId);
-            boardDirector.nextClientId++;
+            socket.emit("initialize", clientId, drawingData);
         });
     }
 } // module.exports
