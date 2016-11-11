@@ -141,6 +141,7 @@ $(document).ready(function(){
 
   socket.on("initialize", function(clientId){
     gClientId = clientId;
+    console.log("I got clientId = ", gClientId); // testing
   });
 
 

@@ -5,13 +5,18 @@ module.exports = {
     BoardDirector: function(boardId, boardNameSpace) {
         this.boardId = boardId;
         this.boardNameSpace = boardNameSpace;
-        // state about the current drawing
+
+        this.nextClientId = 0;
+
+        // state about the current drawing (TODO)
 
         // persists current state to the database
         this.saveToDB = function() {} // TODO implement!
         // populate current state with data from the database
         this.loadFromDB = function() {} // TODO implement!
 
+        var boardDirector = this;       // allows easier access to this in nested
+                                        // function scope below
         // initialization
         this.boardNameSpace.on('connection', function(socket){
             console.log('someone connected on board ' + boardId);
@@ -19,9 +24,10 @@ module.exports = {
             socket.on("draw point", function(data_point, counter){
                 socket.broadcast.emit('draw point', data_point, counter);
             });
-        });
 
-        // boardNameSpace.emit('hi', 'everyone!');  // old testing code
+            socket.emit("initialize", boardDirector.nextClientId);
+            boardDirector.nextClientId++;
+        });
     }
 } // module.exports
     
