@@ -51,11 +51,33 @@ $(document).ready(function(){
     points[clientId].color.push(color);
   }
 
-  $('#change-blue').click(function(e){
-    gColor = "#3368FF";
+  // $('#change-blue').click(function(e){
+  //   gColor = "#3368FF";
+  // });
+  // $('#change-red').click(function(e){
+  //   gColor = "#df4b26";
+  // });
+
+  $('#color01').click(function(e){
+    gColor = "gold";
   });
-  $('#change-red').click(function(e){
-    gColor = "#df4b26";
+  $('#color02').click(function(e){
+    gColor = "darkorange";
+  });
+  $('#color03').click(function(e){
+    gColor = "navy";
+  });
+  $('#color04').click(function(e){
+    gColor = "yellowgreen";
+  });
+  $('#color05').click(function(e){
+    gColor = "firebrick";
+  });
+  $('#color06').click(function(e){
+    gColor = "powderblue";
+  });
+  $('#color07').click(function(e){
+    gColor = "white";
   });
 
   $('#newBoardButton').click(function(e) {

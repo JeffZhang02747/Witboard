@@ -3,6 +3,7 @@
   <script src='./jquery-3.1.1.min.js' type='text/javascript'></script>
   <script src='https://cdn.socket.io/socket.io-1.2.0.js'></script>
   <script type='text/javascript' src='./canvas.js'></script>
+  <link rel="stylesheet" href="css/style.css">
   <head>
     <title>Real Time Witboard</title>
     <h2>Witboard Canvas</h2>
@@ -10,9 +11,20 @@
 
   <body>
     <button id="newBoardButton">New Board</button>
-    <button id="change-blue">blue</button>
-    <button id="change-red">red</button>
-    <canvas id="canvas" width="10000" height="10000"></canvas>
+      &nbsp
+      <button id="downloadButton">Download PDF</button>
+      <br>
+      <br>
+    <section class = "mainSection">
+        <input type="radio" name="color" id="color01" data-color="gold"><label for="color01"></label> 
+        <input type="radio" name="color" id="color02" data-color="darkorange">  <label for="color02"></label>  
+        <input type="radio" name="color" id="color03" data-color="navy">    <label for="color03"></label>  
+        <input type="radio" name="color" id="color04" data-color="yellowgreen"> <label for="color04"></label>  
+        <input type="radio" name="color" id="color05" data-color="firebrick"> <label for="color05"></label>  
+        <input type="radio" name="color" id="color06" data-color="powderblue">  <label for="color06"></label>
+        <input type="radio" name="color" id="color07" data-color="white">  <label for="color07"></label>  
+    </section>
+    <canvas class="canvasSection" id="canvas" width="10000" height="10000"></canvas>
   </body>
 
 </html>
