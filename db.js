@@ -1,15 +1,23 @@
 (function() {
 
 	var admin = require("firebase-admin");
+	var request = require('request');
+
+
+
+
 	var keyLoc = "witboardKey.json";
+	var databaseURL = "https://witboard-6b200.firebaseio.com";
 
 	admin.initializeApp({
 	    credential: admin.credential.cert(keyLoc),
-	    databaseURL: "https://witboard-6b200.firebaseio.com"
+	    databaseURL: databaseURL
 	});
 
 	var db = admin.database();
-	var ref = db.ref("server/saving-data/fireblog");
+	var ref = db.ref("/server/saving-data/fireblog");
+	var refUrl = databaseURL + "/server/saving-data/fireblog";
+
 
 	module.exports.insertBoardData = function (boardId, boardData) {
 		var boardRef = ref.child("board/" + boardId); 
@@ -17,25 +25,40 @@
 	};
 
 	// blocking function
-	module.exports.getBoardData = function ( boardId ) {
-		var boardRef = ref.child("board/" + boardId);
+	module.exports.getBoardData = function ( boardId, callbackFunc ) {
+		var boardRefUrl = refUrl + "/board/" + boardId + ".json";
 
-		var ret = null;
+		request( boardRefUrl, function (error, response, body) {
 
-		boardRef.once("value", function(data) {
-			ret = data.val();
+			callbackFunc( JSON.parse(body) );
 		});
-
-		// blocking until retrieve data
-		while ( ret == null ){
-			continue;
-		}
-		return ret
 	};
 
-	// module.exports.getBoardId = function () {
+	module.exports.saveBoardId = function (val) {
+		var boardRef = ref.child("boardId"); 
+		boardRef.set( val );
+	}
 
-	// }
+	module.exports.getBoardId = function ( callbackFunc ) {
+		var idUrl = refUrl + "/boardId.json";
+
+		request( idUrl, function (error, response, body) {
+			callbackFunc( JSON.parse(body) );
+		});
+	}
+
+	module.exports.saveUserId = function (val) {
+		var boardRef = ref.child("userId");
+		boardRef.set( val );
+	}
+
+	module.exports.getUserId = function( callbackFunc ) {
+		var idUrl = refUrl + "/userId.json";
+
+		request( idUrl, function (error, response, body) {
+			callbackFunc( JSON.parse(body) );
+		});
+	}
 
 	// module.exports.getUserId = function () {
 
