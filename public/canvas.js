@@ -85,7 +85,7 @@ $(document).ready(function(){
         onrendered: function(canvas) {         
             var imgData = canvas.toDataURL(
                 'image/jpeg');              
-            var doc = new jsPDF('p', 'mm', [400, 300]);
+            var doc = new jsPDF('p', 'mm', [700, 1000]);
             doc.addImage(imgData, 'JPEG', 0, 0);
             doc.save('witBoardExport.pdf');
         }
