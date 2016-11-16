@@ -80,6 +80,28 @@ $(document).ready(function(){
     gColor = "white";
   });
 
+  $('#downloadButton').click(function(e) {       
+    // try {
+    //   var canvasPDF = document.getElementsByTagName("canvas")[0];
+    //   var imgData = canvasPDF.toDataURL("image/jpeg");
+    //   // }
+    //   var pdf = new jsPDF('p', 'mm', [297, 210]);
+    //   pdf.addImage(imgData, 'JPEG', 0, 0);
+    //   pdf.save("sample.pdf");
+    //  } catch(e) {
+    //    alert("Error description: " + e.message);
+    //  }
+    html2canvas($("#canvas"), {
+        onrendered: function(canvas) {         
+            var imgData = canvas.toDataURL(
+                'image/jpeg');              
+            var doc = new jsPDF('p', 'mm');
+            doc.addImage(imgData, 'JPEG', 0, 0);
+            doc.save('sample-file.pdf');
+        }
+    });
+  });
+
   $('#newBoardButton').click(function(e) {
     // TODO redirect to new board.
     socket.emit('new board');
