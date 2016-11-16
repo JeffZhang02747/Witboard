@@ -34,6 +34,8 @@ module.exports = {
             });
 
             socket.emit("initialize", clientId, drawingData);
+
+            socket.broadcast.emit('welcome', clientId);
         });
     }
 } // module.exports
