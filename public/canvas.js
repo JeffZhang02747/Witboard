@@ -85,9 +85,9 @@ $(document).ready(function(){
         onrendered: function(canvas) {         
             var imgData = canvas.toDataURL(
                 'image/jpeg');              
-            var doc = new jsPDF('p', 'mm', [700, 600]);
+            var doc = new jsPDF('p', 'mm', [400, 300]);
             doc.addImage(imgData, 'JPEG', 0, 0);
-            doc.save('sample-file.pdf');
+            doc.save('witBoardExport.pdf');
         }
     });
   });
