@@ -33,6 +33,10 @@ module.exports = {
                 socket.broadcast.emit('draw point', data_point, counter);
             });
 
+            socket.on('disconnect', function() {
+                socket.broadcast.emit('user left', clientId);
+            })
+
             socket.emit("initialize", clientId, drawingData);
 
             socket.broadcast.emit('welcome', clientId);
