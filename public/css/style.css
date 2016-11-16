@@ -19,6 +19,21 @@ section.mainSection {
     background-color: #1a5f96;
 }
 
+label.client{
+	margin: 0px 10px;
+    -webkit-box-flex: 1;
+    display: block;
+    border:2px solid black;
+    -webkit-appearance: none;
+    -webkit-border-radius: 5px;
+    background-color: transparent;
+    background-image: literal('-webkit-gradient(linear,left bottom,left top,color-stop(0, #A8ACB9),color-stop(1, #eee))');
+     -webkit-box-shadow: 0 1px 5px rgba(0,0,0,0.3), inset 0 3px 10px rgba(255,255,255,0.3);
+    text-align: center;
+	font-size: 15px;
+	float: right; 
+}
+
 input[type=radio] {
 	margin: 0;
 	display: none;

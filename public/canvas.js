@@ -127,21 +127,23 @@ $(document).ready(function(){
     paint = false;
   });
 
-  function redraw(){
+  function redraw(showClient = -1){
     context.clearRect(0, 0, context.canvas.width, context.canvas.height); // Clears the canvas
     
     $.each(points, function(clientId, thisPoint) {
       for(var i=0; i < thisPoint.clickX.length; i++) {
-        context.strokeStyle = thisPoint.color[i];
-        context.beginPath();
-        if(thisPoint.clickDrag[i] && i){
-          context.moveTo(thisPoint.clickX[i-1], thisPoint.clickY[i-1]);
-         }else{
-           context.moveTo(thisPoint.clickX[i]-1, thisPoint.clickY[i]);
-         }
-         context.lineTo(thisPoint.clickX[i], thisPoint.clickY[i]);
-         context.closePath();
-         context.stroke();
+        if(showClient == clientId || showClient == -1){
+          context.strokeStyle = thisPoint.color[i];
+          context.beginPath();
+          if(thisPoint.clickDrag[i] && i){
+            context.moveTo(thisPoint.clickX[i-1], thisPoint.clickY[i-1]);
+           }else{
+             context.moveTo(thisPoint.clickX[i]-1, thisPoint.clickY[i]);
+           }
+           context.lineTo(thisPoint.clickX[i], thisPoint.clickY[i]);
+           context.closePath();
+           context.stroke();
+        }
       }
     });
   }
@@ -165,12 +167,14 @@ $(document).ready(function(){
     gClientId = clientId;
     var other_points = {};
     var client_color = "white";
+    $('.mainSection').append("<label class='client' style='color: yellow;' data-value='-1'>DEF</label>");
+
     $.each(r_points, function(other_clientId, other_points) {
       // todo: new clients need to be read
       if(other_clientId == clientId){
         client_color = "red";
       }
-      $('.mainSection').append("<label class='client' style='float: right; color: " + client_color + ";'>" + other_clientId + "</label>");
+      $('.mainSection').append("<label class='client' style='color: " + client_color + ";' data-value='" + other_clientId + "'>" + other_clientId + "</label>");
       $.each(other_points, function(index, other_point) {
         addClick(other_clientId, other_point.location_x, other_point.location_y, other_point.color, !other_point.starting);
         redraw();
@@ -185,5 +189,19 @@ $(document).ready(function(){
     // debugger;
     window.location.href += newBoardId;
   });
+
+  socket.on('welcome', function(clientId) {
+      $('.mainSection').append("<label class='client' style='color: white;' data-value='" + clientId + "'>" + clientId + "</label>");
+  });
+
+  socket.on('user left', function(clientId){
+    $('label.client[data-value="' + clientId + '"]').remove();
+  });
+
+  $(document).on("click", '.client', function(e){
+    redraw($(this).attr('data-value'));
+  });
+
+
 
 }); // document.ready
