@@ -17,6 +17,8 @@ module.exports = {
         this.password = undefined;      // a password value of null or undefined
                                         // means the board is not password-protected
 
+        this.clientIdMap = new Map();   // map from socket objects to their assigned client IDs, if assigned
+
         // state about the current drawing
         // an object used as a map associating client ids to arrays of data_point
         // objects.
@@ -46,11 +48,16 @@ module.exports = {
         };
 
         // grant board access to the user connected through socket;
+        // Non-first-time calls to the function with the same socket does nothing
         this.grantAccessToUser = function(socket) {
-            // TODO make sure that this method is safe against multiple calls with the same socket argument
+            if (socket in this.clientIdMap) {
+                return;
+            }
 
             var clientId = this.nextClientId;
             this.nextClientId++;
+
+            this.clientIdMap.set(socket, clientId);
 
             this.drawingData[clientId] = new Array();
 
