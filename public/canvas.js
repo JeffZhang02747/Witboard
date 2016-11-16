@@ -36,6 +36,7 @@ $(document).ready(function(){
     return regexMatches[1];
   }
 
+
   function addClick(clientId, x, y, color, dragging)
   {
     if(!points.hasOwnProperty(clientId)){
@@ -50,13 +51,6 @@ $(document).ready(function(){
     points[clientId].clickDrag.push(dragging);
     points[clientId].color.push(color);
   }
-
-  // $('#change-blue').click(function(e){
-  //   gColor = "#3368FF";
-  // });
-  // $('#change-red').click(function(e){
-  //   gColor = "#df4b26";
-  // });
 
   $('#color01').click(function(e){
     gColor = "gold";
@@ -181,6 +175,10 @@ $(document).ready(function(){
     var client_color = "white";
     $('.mainSection').append("<label class='client' style='color: yellow;' data-value='-1'>DEF</label>");
 
+    if(clientId == 0){
+      $('#passwordArea').css('display', 'inline');
+    }
+
     $.each(r_points, function(other_clientId, other_points) {
       // todo: new clients need to be read
       if(other_clientId == clientId){
@@ -210,8 +208,12 @@ $(document).ready(function(){
     $('label.client[data-value="' + clientId + '"]').remove();
   });
 
-  $(document).on("click", '.client', function(e){
+  $(document).on('click', '.client', function(e){
     redraw($(this).attr('data-value'));
+  });
+
+  $(document).on('click', 'button#setPassword', function(e){
+    socket.emit('set-password', $('#password-area').text());
   });
 
 
