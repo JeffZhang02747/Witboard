@@ -7,6 +7,8 @@ $(document).ready(function(){
     socket = io.connect(window.location.hostname);
   }
   var typed = false;
+  var textarea = null;
+  var textareaindex = 0;
   var timeout = undefined;
   var date = new Date();
   var passcode = date.getTime();
@@ -38,6 +40,20 @@ $(document).ready(function(){
     return regexMatches[1];
   }
 
+  function mouseDownOnTextarea(e) {
+      var x = textarea.offsetLeft - e.clientX,
+          y = textarea.offsetTop - e.clientY;
+      function drag(e) {
+          textarea.style.left = e.clientX + x + 'px';
+          textarea.style.top = e.clientY + y + 'px';
+      }
+      function stopDrag() {
+          document.removeEventListener('mousemove', drag);
+          document.removeEventListener('mouseup', stopDrag);
+      }
+      document.addEventListener('mousemove', drag);
+      document.addEventListener('mouseup', stopDrag);
+  }
 
   function addClick(clientId, x, y, color, dragging)
   {
@@ -86,6 +102,19 @@ $(document).ready(function(){
             doc.save('witBoardExport.pdf');
         }
     });
+  }); 
+
+  $('#hideTextArea').click(function(e){
+    var textareaList = document.getElementsByTagName("textarea");
+    for(var i=0;i<textareaList.length;i++){
+        //DO SOMETHING
+        if (textareaList[i].hidden == false){
+          textareaList[i].hidden = true;
+        }
+        else {
+          textareaList[i].hidden = false;
+        }
+    }
   });
 
   $('#newBoardButton').click(function(e) {
@@ -93,7 +122,34 @@ $(document).ready(function(){
     socket.emit('new board');
   });
 
+  $('#textBoxButton').click(function(e) {
+    // TODO redirect to new board.
+    if (typed == false){
+      typed = true;
+    }
+    else {
+      typed = false;
+    }
+  });
+
   $('#canvas').mousedown(function(e){
+
+    if(typed){
+      var textOnCanvas = document.getElementById('canvas')
+      textarea = document.createElement('textarea');
+      textarea.className = 'info';
+      textarea.name = 'textarea' + textareaindex;
+      // textarea.addEventListener('mousedown', mouseDownOnTextarea);
+      document.body.appendChild(textarea);
+      var x = e.clientX - textOnCanvas.offsetLeft,
+          y = e.clientY - textOnCanvas.offsetTop;
+      textarea.value = "x: " + x + " y: " + y;
+      textarea.style.top = e.clientY + 'px';
+      textarea.style.left = e.clientX + 'px';
+      textareaindex++;
+      return;
+    }
+
     var mouseX = e.pageX - this.offsetLeft;
     var mouseY = e.pageY - this.offsetTop;
       

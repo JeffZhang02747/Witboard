@@ -9,6 +9,10 @@ body{
 
 }
 
+.info {
+	position: absolute;
+}
+
 canvas.canvasSection{
 	background: white;
 }
