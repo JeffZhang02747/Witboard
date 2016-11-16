@@ -33,6 +33,10 @@ module.exports = {
                 socket.broadcast.emit('draw point', data_point, counter);
             });
 
+            socket.on("highlight", function(x, y){
+                socket.broadcast.emit('highlight', x, y, clientId);
+            });            
+
             socket.on('disconnect', function() {
                 socket.broadcast.emit('user left', clientId);
             })
