@@ -80,6 +80,18 @@ $(document).ready(function(){
     gColor = "white";
   });
 
+  $('#downloadButton').click(function(e) {
+    html2canvas($("#canvas"), {
+        onrendered: function(canvas) {         
+            var imgData = canvas.toDataURL(
+                'image/jpeg');              
+            var doc = new jsPDF('p', 'mm', [700, 600]);
+            doc.addImage(imgData, 'JPEG', 0, 0);
+            doc.save('sample-file.pdf');
+        }
+    });
+  });
+
   $('#newBoardButton').click(function(e) {
     // TODO redirect to new board.
     socket.emit('new board');
