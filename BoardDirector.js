@@ -43,7 +43,6 @@ module.exports = {
 
                 socket.emit('incorrect password');
             });
-
             socket.emit('password required');
         };
 
@@ -64,7 +63,7 @@ module.exports = {
             var boardDirector = this;
             if (clientId == 0) {        // this connection is with board creator
                 socket.on("set-password", function(newPassword) {
-                    if (isValidPassword(newPassowrd)) {
+                    if (isValidPassword(newPassword)) {
                         boardDirector.password = newPassword;
                         return;
                     }

@@ -13,6 +13,7 @@ $(document).ready(function(){
   var counter = 0;
   var data_point = {};
   var gClientId = -1;
+  var passwordRequired = false;
 
   context = document.getElementById('canvas').getContext("2d");
   // Default styling
@@ -133,6 +134,17 @@ $(document).ready(function(){
     paint = false;
   });
 
+  function passwordInit(){
+    if(passwordRequired){
+      $('#password-modal').modal('show');
+    }
+  }
+
+  $(document).on('click', '#verify-submit', function(e){
+    socket.emit('verify password', $('#password-input').val());
+  });
+
+
   function redraw(showClient = -1){
     context.clearRect(0, 0, context.canvas.width, context.canvas.height); // Clears the canvas
     
@@ -170,6 +182,8 @@ $(document).ready(function(){
   });
 
   socket.on("initialize", function(clientId, r_points){
+    $('#password-modal').modal('hide');
+
     gClientId = clientId;
     var other_points = {};
     var client_color = "white";
@@ -213,9 +227,18 @@ $(document).ready(function(){
   });
 
   $(document).on('click', 'button#setPassword', function(e){
-    socket.emit('set-password', $('#password-area').text());
+    socket.emit('set-password', $('#password-area').val());
   });
 
+  socket.on('password required', function() {
+    passwordRequired = true;
+    passwordInit();
+  });
 
+  socket.on('incorrect password', function() {
+    passwordRequired = true;
+    alert('Wrong password!');
+    passwordInit();
+  });
 
 }); // document.ready
