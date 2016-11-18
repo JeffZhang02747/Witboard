@@ -87,7 +87,7 @@ module.exports = {
             socket.emit("initialize", clientId, this.drawingData, allowChangePassword);
 
             socket.on('clone board', function() {
-                var retId = global.collection.cloneBoard(boardDirector.drawingData, boardDirector.nextClientId + 1);
+                var retId = global.collection.cloneBoard(boardDirector.drawingData, boardDirector.nextClientId);
                 socket.emit('board created', retId);
             });
 
