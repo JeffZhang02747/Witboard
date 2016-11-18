@@ -22,9 +22,10 @@ $(document).ready(function(){
   context.lineWidth = 5;
 
   var points = {};
-  var gColor = "#df4b26";
+  var gColor = 0;
   var paint;
   var r_points = {};
+  var gColorList = ["gold", "darkorange", "navy", "yellowgreen", "firebrick", "powderblue", "white"];
 
 
   // returns the current board id if it exists, returns null otherwise
@@ -54,25 +55,25 @@ $(document).ready(function(){
   }
 
   $('#color01').click(function(e){
-    gColor = "gold";
+    gColor = 0;
   });
   $('#color02').click(function(e){
-    gColor = "darkorange";
+    gColor = 1;
   });
   $('#color03').click(function(e){
-    gColor = "navy";
+    gColor = 2;
   });
   $('#color04').click(function(e){
-    gColor = "yellowgreen";
+    gColor = 3;
   });
   $('#color05').click(function(e){
-    gColor = "firebrick";
+    gColor = 4;
   });
   $('#color06').click(function(e){
-    gColor = "powderblue";
+    gColor = 5;
   });
   $('#color07').click(function(e){
-    gColor = "white";
+    gColor = 6;
   });
 
   $('#downloadButton').click(function(e) {
@@ -153,7 +154,7 @@ $(document).ready(function(){
     $.each(points, function(clientId, thisPoint) {
       for(var i=0; i < thisPoint.clickX.length; i++) {
         if(showClient == clientId || showClient == -1){
-          context.strokeStyle = thisPoint.color[i];
+          context.strokeStyle = gColorList[thisPoint.color[i]];
           context.beginPath();
           if(thisPoint.clickDrag[i] && i){
             context.moveTo(thisPoint.clickX[i-1], thisPoint.clickY[i-1]);
@@ -196,7 +197,6 @@ $(document).ready(function(){
     }
 
     $.each(r_points, function(other_clientId, other_points) {
-      // todo: new clients need to be read
       if(other_clientId == clientId){
         client_color = "red";
       }
