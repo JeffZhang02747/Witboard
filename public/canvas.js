@@ -141,7 +141,7 @@ $(document).ready(function(){
   }
 
   $(document).on('click', '#verify-submit', function(e){
-    socket.emit('verify password', $('#password-input').val());
+    socket.emit('verify with password', $('#password-input').val());
   });
 
 
