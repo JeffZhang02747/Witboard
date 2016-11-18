@@ -9,6 +9,10 @@ body{
 
 }
 
+textarea{
+	border: none;
+}
+
 .info {
 	position: absolute;
 }

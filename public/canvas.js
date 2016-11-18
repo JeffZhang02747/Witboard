@@ -6,9 +6,11 @@ $(document).ready(function(){
   } else {
     socket = io.connect(window.location.hostname);
   }
-  var typed = false;
+  var mycomments = {};
+  var showText = false;
   var textarea = null;
   var textareaindex = 0;
+  var textareahidden = false;
   var timeout = undefined;
   var date = new Date();
   var passcode = date.getTime();
@@ -38,21 +40,6 @@ $(document).ready(function(){
       return null; 
     }
     return regexMatches[1];
-  }
-
-  function mouseDownOnTextarea(e) {
-      var x = textarea.offsetLeft - e.clientX,
-          y = textarea.offsetTop - e.clientY;
-      function drag(e) {
-          textarea.style.left = e.clientX + x + 'px';
-          textarea.style.top = e.clientY + y + 'px';
-      }
-      function stopDrag() {
-          document.removeEventListener('mousemove', drag);
-          document.removeEventListener('mouseup', stopDrag);
-      }
-      document.addEventListener('mousemove', drag);
-      document.addEventListener('mouseup', stopDrag);
   }
 
   function addClick(clientId, x, y, color, dragging)
@@ -105,15 +92,19 @@ $(document).ready(function(){
   }); 
 
   $('#hideTextArea').click(function(e){
+
+    if (textareahidden == false){
+      textareahidden = true;
+      document.getElementById('hideTextArea').value = "Show comments";
+    }
+    else {
+      textareahidden = false;
+      document.getElementById('hideTextArea').value = "Hide comments";
+    }
+
     var textareaList = document.getElementsByTagName("textarea");
-    for(var i=0;i<textareaList.length;i++){
-        //DO SOMETHING
-        if (textareaList[i].hidden == false){
-          textareaList[i].hidden = true;
-        }
-        else {
-          textareaList[i].hidden = false;
-        }
+    for(var i=0; i<textareaList.length; i++){
+        textareaList[i].hidden = textareahidden;
     }
   });
 
@@ -124,28 +115,46 @@ $(document).ready(function(){
 
   $('#textBoxButton').click(function(e) {
     // TODO redirect to new board.
-    if (typed == false){
-      typed = true;
+    if (showText == false){
+      showText = true;
     }
     else {
-      typed = false;
+      showText = false;
     }
   });
 
   $('#canvas').mousedown(function(e){
 
-    if(typed){
-      var textOnCanvas = document.getElementById('canvas')
-      textarea = document.createElement('textarea');
-      textarea.className = 'info';
-      textarea.name = 'textarea' + textareaindex;
-      // textarea.addEventListener('mousedown', mouseDownOnTextarea);
-      document.body.appendChild(textarea);
+    if(showText){
+      var textOnCanvas = document.getElementById('canvas');
+      mycomments[textareaindex] = document.createElement('textarea');
+      mycomments[textareaindex].className = 'info';
+      mycomments[textareaindex].name = 'textarea' + textareaindex;
+      mycomments[textareaindex].id = textareaindex;
+      mycomments[textareaindex].addEventListener('mousedown', function mouseDownOnTextarea(e) {
+          var currentIndex = this.id;
+          var x = mycomments[currentIndex].offsetLeft - e.clientX,
+              y = mycomments[currentIndex].offsetTop - e.clientY;
+          function drag(e) {
+              mycomments[currentIndex].style.left = e.clientX + x + 'px';
+              mycomments[currentIndex].style.top = e.clientY + y + 'px';
+          }
+          function stopDrag() {
+              document.removeEventListener('mousemove', drag);
+              document.removeEventListener('mouseup', stopDrag);
+          }
+          document.addEventListener('mousemove', drag);
+          document.addEventListener('mouseup', stopDrag);
+      });
+      mycomments[textareaindex].addEventListener('dblclick', function remove(){
+        this.remove();
+      });
+      document.body.appendChild(mycomments[textareaindex]);
       var x = e.clientX - textOnCanvas.offsetLeft,
           y = e.clientY - textOnCanvas.offsetTop;
-      textarea.value = "x: " + x + " y: " + y;
-      textarea.style.top = e.clientY + 'px';
-      textarea.style.left = e.clientX + 'px';
+      mycomments[textareaindex].value = "x: " + x + " y: " + y;
+      mycomments[textareaindex].style.top = e.clientY + 'px';
+      mycomments[textareaindex].style.left = e.clientX + 'px';
       textareaindex++;
       return;
     }
