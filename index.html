@@ -16,16 +16,16 @@
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
   <head>
     <title>Real Time Witboard</title>
-    <h2>Witboard Canvas</h2>
+    <h2 id="witboard-title">Witboard Canvas</h2>
   </head>
 
   <body>
-    <button id="newBoardButton">New Board</button>
+    <button id="newBoardButton" class="btn">New Board</button>
       &nbsp
-      <button id="downloadButton">Download PDF</button>
+      <button id="downloadButton" class="btn">Download PDF</button>
       <div id="passwordArea" style="display: none;">
         <input id="password-area"></input>
-        <button id="setPassword">Set Password</button>
+        <button id="setPassword" class="btn">Set Password</button>
       </div>
       <br>
     <section class = "mainSection">
@@ -45,6 +45,9 @@
 <div class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" id="password-modal">
   <div class="modal-dialog modal-lg" role="document">
     <div class="modal-content">
+      <div id="alert-wrong" class="alert alert-danger">
+        Wrong Password!
+      </div>
       <label id="password-label" for="message-text" class="control-label">Password:</label>
       <textarea id="password-input" class="form-control"></textarea>
       <div class="modal-footer">

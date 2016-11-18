@@ -232,13 +232,18 @@ $(document).ready(function(){
 
   socket.on('password required', function() {
     passwordRequired = true;
+    $("#alert-wrong").hide();
     passwordInit();
   });
 
   socket.on('incorrect password', function() {
     passwordRequired = true;
-    alert('Wrong password!');
+    $("#alert-wrong").show();
     passwordInit();
+  });
+
+  socket.on('password change successful',function() {
+    $("#witboard-title").after('<div class="alert alert-success alert-dismissible"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>Password Changed!</div>');
   });
 
 }); // document.ready
