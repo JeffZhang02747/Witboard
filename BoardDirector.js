@@ -31,8 +31,6 @@ module.exports = {
         // If verification is successful, then access is granted to the user
         this.verifyUser = function(socket) {
             if (typeof(this.password) === 'undefined') {
-                console.log("dsasda");
-
                 this.grantAccessToUser(socket);
                 return;
             }
@@ -46,7 +44,6 @@ module.exports = {
 
                 socket.emit('incorrect password');
             });
-
             socket.emit('password required');
         };
 
@@ -62,8 +59,9 @@ module.exports = {
             var boardDirector = this;
             if (clientId == boardDirector.firstId) {        // this connection is with board creator
                 socket.on("set-password", function(newPassword) {
-                    if (isValidPassword(newPassowrd)) {
+                    if (isValidPassword(newPassword)) {
                         boardDirector.password = newPassword;
+                        socket.emit('password change successful');
                         return;
                     }
                     socket.emit('invalid-password', 'The password must be at least 8 characters long!');
@@ -85,16 +83,11 @@ module.exports = {
             });
 
             // the initialize event is only sent when the user is granted access to the board
-            console.log(this.drawingData);
-
-
             socket.emit("initialize", clientId, this.drawingData);
 
             socket.on('clone board', function() {
-
                 var retId = global.collection.cloneBoard(boardDirector.drawingData, boardDirector.nextClientId + 1);
                 socket.emit('board created', retId);
-
             });
 
             socket.broadcast.emit('welcome', clientId);

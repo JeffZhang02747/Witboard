@@ -13,6 +13,7 @@ $(document).ready(function(){
   var counter = 0;
   var data_point = {};
   var gClientId = -1;
+  var passwordRequired = false;
 
   context = document.getElementById('canvas').getContext("2d");
   // Default styling
@@ -21,9 +22,10 @@ $(document).ready(function(){
   context.lineWidth = 5;
 
   var points = {};
-  var gColor = "#df4b26";
+  var gColor = 0;
   var paint;
   var r_points = {};
+  var gColorList = ["gold", "darkorange", "navy", "yellowgreen", "firebrick", "powderblue", "white"];
 
 
   // returns the current board id if it exists, returns null otherwise
@@ -35,6 +37,7 @@ $(document).ready(function(){
     }
     return regexMatches[1];
   }
+
 
   function addClick(clientId, x, y, color, dragging)
   {
@@ -51,33 +54,26 @@ $(document).ready(function(){
     points[clientId].color.push(color);
   }
 
-  // $('#change-blue').click(function(e){
-  //   gColor = "#3368FF";
-  // });
-  // $('#change-red').click(function(e){
-  //   gColor = "#df4b26";
-  // });
-
   $('#color01').click(function(e){
-    gColor = "gold";
+    gColor = 0;
   });
   $('#color02').click(function(e){
-    gColor = "darkorange";
+    gColor = 1;
   });
   $('#color03').click(function(e){
-    gColor = "navy";
+    gColor = 2;
   });
   $('#color04').click(function(e){
-    gColor = "yellowgreen";
+    gColor = 3;
   });
   $('#color05').click(function(e){
-    gColor = "firebrick";
+    gColor = 4;
   });
   $('#color06').click(function(e){
-    gColor = "powderblue";
+    gColor = 5;
   });
   $('#color07').click(function(e){
-    gColor = "white";
+    gColor = 6;
   });
 
   $('#downloadButton').click(function(e) {
@@ -147,13 +143,26 @@ $(document).ready(function(){
     paint = false;
   });
 
+  function passwordInit(){
+    if(passwordRequired){
+      $('#password-modal').modal({
+        keyboard: false,
+        backdrop: 'static'
+      });
+    }
+  }
+
+  $(document).on('click', '#verify-submit', function(e){
+    socket.emit('verify with password', $('#password-input').val());
+  });
+
   function redraw(showClient = -1){
     context.clearRect(0, 0, context.canvas.width, context.canvas.height); // Clears the canvas
     
     $.each(points, function(clientId, thisPoint) {
       for(var i=0; i < thisPoint.clickX.length; i++) {
         if(showClient == clientId || showClient == -1){
-          context.strokeStyle = thisPoint.color[i];
+          context.strokeStyle = gColorList[thisPoint.color[i]];
           context.beginPath();
           if(thisPoint.clickDrag[i] && i){
             context.moveTo(thisPoint.clickX[i-1], thisPoint.clickY[i-1]);
@@ -184,8 +193,8 @@ $(document).ready(function(){
   });
 
   socket.on("initialize", function(clientId, r_points){
-    console.log(r_points);
 
+    $('#password-modal').modal('hide');
 
 
     gClientId = clientId;
@@ -193,17 +202,21 @@ $(document).ready(function(){
     var client_color = "white";
     $('.mainSection').append("<label class='client' style='color: yellow;' data-value='-1'>DEF</label>");
 
+    if(clientId == 0){
+      $('#passwordArea').css('display', 'inline');
+    }
+
     $.each(r_points, function(other_clientId, other_points) {
-      // todo: new clients need to be read
       if(other_clientId == clientId){
         client_color = "red";
       }
       $('.mainSection').append("<label class='client' style='color: " + client_color + ";' data-value='" + other_clientId + "'>" + other_clientId + "</label>");
       $.each(other_points, function(index, other_point) {
         addClick(other_clientId, other_point.location_x, other_point.location_y, other_point.color, !other_point.starting);
-        redraw();
       });
     });
+    redraw();
+
   });
 
 
@@ -211,8 +224,8 @@ $(document).ready(function(){
   socket.on('board created', function(newBoardId) {
     // socket = io(window.location.hostname + newBoardId);
     // debugger;
+    
       var newPath = "/" + newBoardId;
-      //console.log(newPath);
       window.location.pathname = newPath;
   });
 
@@ -224,10 +237,28 @@ $(document).ready(function(){
     $('label.client[data-value="' + clientId + '"]').remove();
   });
 
-  $(document).on("click", '.client', function(e){
+  $(document).on('click', '.client', function(e){
     redraw($(this).attr('data-value'));
   });
 
+  $(document).on('click', 'button#setPassword', function(e){
+    socket.emit('set-password', $('#password-area').val());
+  });
 
+  socket.on('password required', function() {
+    passwordRequired = true;
+    $("#alert-wrong").hide();
+    passwordInit();
+  });
+
+  socket.on('incorrect password', function() {
+    passwordRequired = true;
+    $("#alert-wrong").show();
+    passwordInit();
+  });
+
+  socket.on('password change successful',function() {
+    $("#witboard-title").after('<div class="alert alert-success alert-dismissible"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>Password Changed!</div>');
+  });
 
 }); // document.ready
