@@ -203,9 +203,10 @@ $(document).ready(function(){
       $('.mainSection').append("<label class='client' style='color: " + client_color + ";' data-value='" + other_clientId + "'>" + other_clientId + "</label>");
       $.each(other_points, function(index, other_point) {
         addClick(other_clientId, other_point.location_x, other_point.location_y, other_point.color, !other_point.starting);
-        redraw();
       });
     });
+    redraw();
+
   });
 
 
