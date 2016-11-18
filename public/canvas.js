@@ -136,14 +136,16 @@ $(document).ready(function(){
 
   function passwordInit(){
     if(passwordRequired){
-      $('#password-modal').modal('show');
+      $('#password-modal').modal({
+        keyboard: false,
+        backdrop: 'static'
+      });
     }
   }
 
   $(document).on('click', '#verify-submit', function(e){
     socket.emit('verify with password', $('#password-input').val());
   });
-
 
   function redraw(showClient = -1){
     context.clearRect(0, 0, context.canvas.width, context.canvas.height); // Clears the canvas
