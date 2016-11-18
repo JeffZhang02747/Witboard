@@ -4,6 +4,7 @@ function isValidPassword(candidatePassword) {
 
 
 
+
 module.exports = {
     // constructor function
     // a BoardDirector encapsulates the back-end code and state of a board with the
@@ -13,16 +14,16 @@ module.exports = {
         this.boardNameSpace = boardNameSpace;
 
         this.nextClientId = 0;
+        this.firstId = 0;
 
         this.password = undefined;      // a password value of null or undefined
                                         // means the board is not password-protected
-
-        this.clientIdMap = new Map();   // map from socket objects to their assigned client IDs, if assigned
 
         // state about the current drawing
         // an object used as a map associating client ids to arrays of data_point
         // objects.
         this.drawingData = {};
+
 
         ///////////////////// method definitions start ///////////////////
 
@@ -30,6 +31,8 @@ module.exports = {
         // If verification is successful, then access is granted to the user
         this.verifyUser = function(socket) {
             if (typeof(this.password) === 'undefined') {
+                console.log("dsasda");
+
                 this.grantAccessToUser(socket);
                 return;
             }
@@ -48,21 +51,16 @@ module.exports = {
         };
 
         // grant board access to the user connected through socket;
-        // Non-first-time calls to the function with the same socket does nothing
         this.grantAccessToUser = function(socket) {
-            if (socket in this.clientIdMap) {
-                return;
-            }
+            // TODO make sure that this method is safe against multiple calls with the same socket argument
 
             var clientId = this.nextClientId;
             this.nextClientId++;
 
-            this.clientIdMap.set(socket, clientId);
-
             this.drawingData[clientId] = new Array();
 
             var boardDirector = this;
-            if (clientId == 0) {        // this connection is with board creator
+            if (clientId == boardDirector.firstId) {        // this connection is with board creator
                 socket.on("set-password", function(newPassword) {
                     if (isValidPassword(newPassowrd)) {
                         boardDirector.password = newPassword;
@@ -71,6 +69,7 @@ module.exports = {
                     socket.emit('invalid-password', 'The password must be at least 8 characters long!');
                 });
             }
+
 
             socket.on("draw point", function(data_point, counter){
                 boardDirector.drawingData[clientId].push(data_point);
@@ -86,7 +85,17 @@ module.exports = {
             });
 
             // the initialize event is only sent when the user is granted access to the board
+            console.log(this.drawingData);
+
+
             socket.emit("initialize", clientId, this.drawingData);
+
+            socket.on('clone board', function() {
+
+                var retId = global.collection.cloneBoard(boardDirector.drawingData, boardDirector.nextClientId + 1);
+                socket.emit('board created', retId);
+
+            });
 
             socket.broadcast.emit('welcome', clientId);
         };
@@ -95,6 +104,7 @@ module.exports = {
         this.saveToDB = function() {}; // TODO implement!
         // populate current state with data from the database
         this.loadFromDB = function() {}; // TODO implement!
+
 
 
         //////////////////// method end definitions //////////////////////
@@ -106,5 +116,5 @@ module.exports = {
             boardDirector.verifyUser(socket);
         });
     }
+
 } // module.exports
-    
