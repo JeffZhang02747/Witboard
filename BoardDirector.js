@@ -65,6 +65,7 @@ module.exports = {
                 socket.on("set-password", function(newPassword) {
                     if (isValidPassword(newPassword)) {
                         boardDirector.password = newPassword;
+                        socket.emit('password change successful');
                         return;
                     }
                     socket.emit('invalid-password', 'The password must be at least 8 characters long!');
