@@ -6,7 +6,11 @@ $(document).ready(function(){
   } else {
     socket = io.connect(window.location.hostname);
   }
-  var typed = false;
+  var mycomments = {};
+  var showText = false;
+  var textarea = null;
+  var textareaindex = 0;
+  var textareahidden = false;
   var timeout = undefined;
   var date = new Date();
   var passcode = date.getTime();
@@ -37,7 +41,6 @@ $(document).ready(function(){
     }
     return regexMatches[1];
   }
-
 
   function addClick(clientId, x, y, color, dragging)
   {
@@ -86,6 +89,23 @@ $(document).ready(function(){
             doc.save('witBoardExport.pdf');
         }
     });
+  }); 
+
+  $('#hideTextArea').click(function(e){
+
+    if (textareahidden == false){
+      textareahidden = true;
+      document.getElementById('hideTextArea').value = "Show comments";
+    }
+    else {
+      textareahidden = false;
+      document.getElementById('hideTextArea').value = "Hide comments";
+    }
+
+    var textareaList = document.getElementsByTagName("textarea");
+    for(var i=0; i<textareaList.length; i++){
+        textareaList[i].hidden = textareahidden;
+    }
   });
 
   $('#newBoardButton').click(function(e) {
@@ -93,15 +113,60 @@ $(document).ready(function(){
     socket.emit('new board');
   });
 
+
   $('#cloneButton').click(function(e) {
     // TODO redirect to new board.
     socket.emit('clone board');
   });
 
 
+  $('#textBoxButton').click(function(e) {
+    // TODO redirect to new board.
+    if (showText == false){
+      showText = true;
+    }
+    else {
+      showText = false;
+    }
+  });
 
 
   $('#canvas').mousedown(function(e){
+
+    if(showText){
+      var textOnCanvas = document.getElementById('canvas');
+      mycomments[textareaindex] = document.createElement('textarea');
+      mycomments[textareaindex].className = 'info';
+      mycomments[textareaindex].name = 'textarea' + textareaindex;
+      mycomments[textareaindex].id = textareaindex;
+      mycomments[textareaindex].addEventListener('mousedown', function mouseDownOnTextarea(e) {
+          var currentIndex = this.id;
+          var x = mycomments[currentIndex].offsetLeft - e.clientX,
+              y = mycomments[currentIndex].offsetTop - e.clientY;
+          function drag(e) {
+              mycomments[currentIndex].style.left = e.clientX + x + 'px';
+              mycomments[currentIndex].style.top = e.clientY + y + 'px';
+          }
+          function stopDrag() {
+              document.removeEventListener('mousemove', drag);
+              document.removeEventListener('mouseup', stopDrag);
+          }
+          document.addEventListener('mousemove', drag);
+          document.addEventListener('mouseup', stopDrag);
+      });
+      mycomments[textareaindex].addEventListener('dblclick', function remove(){
+        this.remove();
+      });
+      document.body.appendChild(mycomments[textareaindex]);
+      var x = e.clientX - textOnCanvas.offsetLeft,
+          y = e.clientY - textOnCanvas.offsetTop;
+      mycomments[textareaindex].value = "x: " + x + " y: " + y;
+      mycomments[textareaindex].style.top = e.clientY + 'px';
+      mycomments[textareaindex].style.left = e.clientX + 'px';
+      textareaindex++;
+      return;
+    }
+
     var mouseX = e.pageX - this.offsetLeft;
     var mouseY = e.pageY - this.offsetTop;
       
@@ -162,16 +227,23 @@ $(document).ready(function(){
     $.each(points, function(clientId, thisPoint) {
       for(var i=0; i < thisPoint.clickX.length; i++) {
         if(showClient == clientId || showClient == -1){
-          context.strokeStyle = gColorList[thisPoint.color[i]];
-          context.beginPath();
           if(thisPoint.clickDrag[i] && i){
             context.moveTo(thisPoint.clickX[i-1], thisPoint.clickY[i-1]);
+            context.lineTo(thisPoint.clickX[i], thisPoint.clickY[i]);
+            if (i == thisPoint.clickX.length - 1) {
+              context.closePath();
+              context.stroke();
+            }
            }else{
-             context.moveTo(thisPoint.clickX[i]-1, thisPoint.clickY[i]);
+             if (i !== 0) {
+               context.closePath();
+               context.stroke();
+             }
+             context.strokeStyle = gColorList[thisPoint.color[i]];
+             context.beginPath();
+             context.moveTo(thisPoint.clickX[i]-1, thisPoint.clickY[i]);             
            }
            context.lineTo(thisPoint.clickX[i], thisPoint.clickY[i]);
-           context.closePath();
-           context.stroke();
         }
       }
     });
