@@ -219,16 +219,23 @@ $(document).ready(function(){
     $.each(points, function(clientId, thisPoint) {
       for(var i=0; i < thisPoint.clickX.length; i++) {
         if(showClient == clientId || showClient == -1){
-          context.strokeStyle = gColorList[thisPoint.color[i]];
-          context.beginPath();
           if(thisPoint.clickDrag[i] && i){
             context.moveTo(thisPoint.clickX[i-1], thisPoint.clickY[i-1]);
+            context.lineTo(thisPoint.clickX[i], thisPoint.clickY[i]);
+            if (i == thisPoint.clickX.length - 1) {
+              context.closePath();
+              context.stroke();
+            }
            }else{
-             context.moveTo(thisPoint.clickX[i]-1, thisPoint.clickY[i]);
+             if (i !== 0) {
+               context.closePath();
+               context.stroke();
+             }
+             context.strokeStyle = gColorList[thisPoint.color[i]];
+             context.beginPath();
+             context.moveTo(thisPoint.clickX[i]-1, thisPoint.clickY[i]);             
            }
            context.lineTo(thisPoint.clickX[i], thisPoint.clickY[i]);
-           context.closePath();
-           context.stroke();
         }
       }
     });
