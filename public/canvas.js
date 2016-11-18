@@ -97,6 +97,14 @@ $(document).ready(function(){
     socket.emit('new board');
   });
 
+  $('#cloneButton').click(function(e) {
+    // TODO redirect to new board.
+    socket.emit('clone board');
+  });
+
+
+
+
   $('#canvas').mousedown(function(e){
     var mouseX = e.pageX - this.offsetLeft;
     var mouseY = e.pageY - this.offsetTop;
@@ -176,6 +184,10 @@ $(document).ready(function(){
   });
 
   socket.on("initialize", function(clientId, r_points){
+    console.log(r_points);
+
+
+
     gClientId = clientId;
     var other_points = {};
     var client_color = "white";
@@ -199,7 +211,9 @@ $(document).ready(function(){
   socket.on('board created', function(newBoardId) {
     // socket = io(window.location.hostname + newBoardId);
     // debugger;
-    window.location.href += newBoardId;
+      var newPath = "/" + newBoardId;
+      //console.log(newPath);
+      window.location.pathname = newPath;
   });
 
   socket.on('welcome', function(clientId) {
