@@ -57,7 +57,8 @@ module.exports = {
             this.drawingData[clientId] = new Array();
 
             var boardDirector = this;
-            if (clientId == boardDirector.firstId) {        // this connection is with board creator
+            var allowChangePassword = clientId == boardDirector.firstId;
+            if ( allowChangePassword ) {        // this connection is with board creator
                 socket.on("set-password", function(newPassword) {
                     if (isValidPassword(newPassword)) {
                         boardDirector.password = newPassword;
@@ -83,7 +84,7 @@ module.exports = {
             });
 
             // the initialize event is only sent when the user is granted access to the board
-            socket.emit("initialize", clientId, this.drawingData);
+            socket.emit("initialize", clientId, this.drawingData, allowChangePassword);
 
             socket.on('clone board', function() {
                 var retId = global.collection.cloneBoard(boardDirector.drawingData, boardDirector.nextClientId + 1);

@@ -192,7 +192,7 @@ $(document).ready(function(){
     redraw();
   });
 
-  socket.on("initialize", function(clientId, r_points){
+  socket.on("initialize", function(clientId, r_points, allowChangePassword){
 
     $('#password-modal').modal('hide');
 
@@ -202,7 +202,7 @@ $(document).ready(function(){
     var client_color = "white";
     $('.mainSection').append("<label class='client' style='color: yellow;' data-value='-1'>DEF</label>");
 
-    if(clientId == 0){
+    if( allowChangePassword ){
       $('#passwordArea').css('display', 'inline');
     }
 
@@ -224,7 +224,7 @@ $(document).ready(function(){
   socket.on('board created', function(newBoardId) {
     // socket = io(window.location.hostname + newBoardId);
     // debugger;
-    
+
       var newPath = "/" + newBoardId;
       window.location.pathname = newPath;
   });
