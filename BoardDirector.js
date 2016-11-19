@@ -1,3 +1,6 @@
+var Comment = require('./Comment.js');
+
+
 function isValidPassword(candidatePassword) {
     return candidatePassword.length >= 8;
 }
@@ -23,9 +26,63 @@ module.exports = {
         // an object used as a map associating client ids to arrays of data_point
         // objects.
         this.drawingData = {};
+        // comments data (TODO which datastructure?)
+        this.comments = new Array();
 
 
         ///////////////////// method definitions start ///////////////////
+
+        this.setUpCommentHandlers = function (clientId, socket) {
+            var boardDirector = this;
+
+            // returns the comment to edit/delete if valid, or undefined otherwise.
+            // if invalid, also notifies the client
+            var checkIfValidEdit = new function (commentId) {
+                var comment = boardDirector.comments[commentId];
+                if (typeof(comment) === 'undefined') {
+                    socket.emit('invalid edit/delete comment', 
+                                'Provided comment id does not point to an existing comment.')
+                    return undefined;
+                }
+                if (comment.authorClientId !== clientId) {
+                    socket.emit('invalid edit/delete comment', 
+                                "Comment to edit/delete isn't authored by you! Cannot edit comments by others!")
+                    return undefined;
+                }
+
+                return comment;
+            };
+
+            socket.on('add comment', function(message, xPos, yPos) {
+                // commentId is the same as the index to boardDirector.comments
+                var commentId = boardDirector.comments.length;
+                var newComment = new Comment.Comment(clientId, message, xPos, yPos);
+                boardDirector.comments.push(newComment);
+                
+                socket.emit('id for new comment', commentId);
+                socket.broadcast.emit('new comment', commentId, newComment);
+            });
+
+            socket.on('edit comment', function(commentId, message, xPos, yPos) {
+                var comment = checkIfValidEdit(commentId);
+                if (!comment) { return; }
+
+                comment.message = message;
+                comment.xPos = xPos;
+                comment.yPos = yPos;
+
+                socket.broadcast.emit('updated comment', commentId, comment);
+            });
+
+            socket.on('delete comment', function(commentId) {
+                var comment = checkIfValidEdit(commentId);
+                if (!comment) { return; }
+
+                boardDirector.comments[commentId] = undefined;
+
+                socket.broadcast.emit('deleted comment', commentId);
+            });
+        }
 
         // verify the user connected through socket;
         // If verification is successful, then access is granted to the user
@@ -74,6 +131,8 @@ module.exports = {
                 boardDirector.drawingData[clientId].push(data_point);
                 socket.broadcast.emit('draw point', data_point, counter);
             });
+
+            this.setUpCommentHandlers(clientId, socket);
 
             socket.on("highlight", function(x, y){
                 socket.broadcast.emit('highlight', x, y, clientId);
