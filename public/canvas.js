@@ -6,10 +6,16 @@ $(document).ready(function(){
   } else {
     socket = io.connect(window.location.hostname);
   }
-  var mycomments = {};
+  var mycomments = {}; // TODO get rid of this?
+  // a new comment object which isn't assigned an commentId yet.
+  var newTempComment = undefined; // undefined means there's no newTempComment
+  var comments = new Array();
+  // array of textarea objects;
+  // this array is kept in sync with comments
+  var commentTextAreas = new Array();
   var showText = false;
   var textarea = null;
-  var textareaindex = 0;
+  var textareaindex = 0;  // TODO delete this var? don't think we're using it anymore?
   var textareahidden = false;
   var timeout = undefined;
   var date = new Date();
@@ -134,36 +140,59 @@ $(document).ready(function(){
   $('#canvas').mousedown(function(e){
 
     if(showText){
-      var textOnCanvas = document.getElementById('canvas');
-      mycomments[textareaindex] = document.createElement('textarea');
-      mycomments[textareaindex].className = 'info';
-      mycomments[textareaindex].name = 'textarea' + textareaindex;
-      mycomments[textareaindex].id = textareaindex;
-      mycomments[textareaindex].addEventListener('mousedown', function mouseDownOnTextarea(e) {
-          var currentIndex = this.id;
-          var x = mycomments[currentIndex].offsetLeft - e.clientX,
-              y = mycomments[currentIndex].offsetTop - e.clientY;
-          function drag(e) {
-              mycomments[currentIndex].style.left = e.clientX + x + 'px';
-              mycomments[currentIndex].style.top = e.clientY + y + 'px';
-          }
-          function stopDrag() {
-              document.removeEventListener('mousemove', drag);
-              document.removeEventListener('mouseup', stopDrag);
-          }
-          document.addEventListener('mousemove', drag);
-          document.addEventListener('mouseup', stopDrag);
+      // var textOnCanvas = document.getElementById('canvas');
+      // mycomments[textareaindex] = document.createElement('textarea');
+      // mycomments[textareaindex].className = 'info';
+      // mycomments[textareaindex].name = 'textarea' + textareaindex;
+      // mycomments[textareaindex].id = textareaindex;
+      // mycomments[textareaindex].addEventListener('mousedown', function mouseDownOnTextarea(e) {
+      //     var x = this.offsetLeft - e.clientX,
+      //         y = this.offsetTop - e.clientY;
+      //     function drag(e) {
+      //         this.style.left = e.clientX + x + 'px';
+      //         this.style.top = e.clientY + y + 'px';
+      //         values.x = e.clientX + x;
+      //         values.y = e.clientY + y;
+      //         console.log("wow");
+      //         // debugger;
+      //         socket.emit('drag comments', gClientId, values, this.id);
+      //     }
+      //     function stopDrag() {
+      //         this.removeEventListener('mousemove', drag);
+      //         this.removeEventListener('mouseup', stopDrag);
+      //     }
+      //     this.addEventListener('mousemove', drag);
+      //     this.addEventListener('mouseup', stopDrag);
+      // });
+      // mycomments[textareaindex].addEventListener('dblclick', function remove(){
+      //   socket.emit('delete comments', gClientId, values, this.id);
+      //   this.remove();
+      // });
+      // document.body.appendChild(mycomments[textareaindex]);
+      // var values = {};
+      // values.x = e.clientX;
+      // values.y = e.clientY;
+
+      newTempComment = new Object();
+      newTempComment.authorClientId = gClientId;
+      newTempComment.message = "";
+      newTempComment.xPos = e.clientX;
+      newTempComment.yPos = e.clientY;
+
+      rerenderComments();
+
+      socket.on("id for new comment", function(commentId) {
+         comments[commentId] = newTempComment;
+         newTempComment = undefined;
       });
-      mycomments[textareaindex].addEventListener('dblclick', function remove(){
-        this.remove();
-      });
-      document.body.appendChild(mycomments[textareaindex]);
-      var x = e.clientX - textOnCanvas.offsetLeft,
-          y = e.clientY - textOnCanvas.offsetTop;
-      mycomments[textareaindex].value = "x: " + x + " y: " + y;
-      mycomments[textareaindex].style.top = e.clientY + 'px';
-      mycomments[textareaindex].style.left = e.clientX + 'px';
-      textareaindex++;
+      socket.emit("add comment", newTempComment.message, newTempComment.xPos, newTempComment.yPos);
+
+      // var x = e.clientX - textOnCanvas.offsetLeft,
+      //     y = e.clientY - textOnCanvas.offsetTop;
+      // mycomments[textareaindex].value = "x: " + x + " y: " + y;
+      // mycomments[textareaindex].style.top = e.clientY + 'px';
+      // mycomments[textareaindex].style.left = e.clientX + 'px';
+      textareaindex++;    
       return;
     }
 
@@ -248,6 +277,126 @@ $(document).ready(function(){
       }
     });
   }
+
+  function rerenderComments() {
+    $(document).remove('textarea');
+    // for(var i=0; i<comments.length; i++){
+      
+    //   // TODO does this work?
+    //   // document.body.removeChild(userComments);
+    // }
+
+    function addTextArea(commentId, comment) {
+      if (!comment) {
+        return;
+      }
+
+      var textOnCanvas = document.getElementById('canvas');
+      var userComments = document.createElement('textarea');
+      userComments.className = 'info';
+      userComments.name = 'textarea' + textareaindex;
+      userComments.id = commentId;
+      userComments.addEventListener('mousedown', function mouseDownOnTextarea(e) {
+          var x = userComments.offsetLeft - e.clientX,
+              y = userComments.offsetTop - e.clientY;
+          function drag(e) {
+              this.style.left = e.clientX + x + 'px';
+              this.style.top = e.clientY + y + 'px';
+              var values;
+              values.x = e.clientX + x;
+              values.y = e.clientY + y;
+              // debugger;
+              // console.log('is this getting called? ', this.id);
+              socket.emit('drag comments', gClientId, values, this.id);
+          }
+          function stopDrag() {
+              this.removeEventListener('mousemove', drag);
+              this.removeEventListener('mouseup', stopDrag);
+
+          }
+          this.addEventListener('mousemove', drag);
+          this.addEventListener('mouseup', stopDrag);
+      });
+      userComments.addEventListener('dblclick', function remove(){
+        socket.emit('delete comments', gClientId, values, this.id);
+        this.remove();
+      });
+      document.body.appendChild(userComments);
+      // var x = values.x - textOnCanvas.offsetLeft,
+      //     y = values.y - textOnCanvas.offsetTop;
+
+      userComments.value = comment.message;
+      userComments.style.top = comment.xPos + 'px';
+      userComments.style.left = comment.yPos + 'px';
+    }
+
+    $.each(comments, addTextArea);
+    if (typeof(newTempComment) !== "undefined") {
+      addTextArea("tempId", newTempComment);
+    }
+  }
+
+  socket.on("new comment", function(commentId, comment){
+    comments[commentId] = comment;
+    rerenderComments();
+
+    // var textOnCanvas = document.getElementById('canvas');
+    // var userComments = document.createElement('textarea');
+    //   userComments.className = 'info';
+    //   userComments.name = 'textarea' + textareaindex;
+    //   userComments.id = commentId;
+    //   userComments.addEventListener('mousedown', function mouseDownOnTextarea(e) {
+    //       var x = userComments.offsetLeft - e.clientX,
+    //           y = userComments.offsetTop - e.clientY;
+    //       function drag(e) {
+    //           this.style.left = e.clientX + x + 'px';
+    //           this.style.top = e.clientY + y + 'px';
+    //           values.x = e.clientX + x;
+    //           values.y = e.clientY + y;
+    //           // debugger;
+    //           // console.log('is this getting called? ', this.id);
+    //           socket.emit('drag comments', gClientId, values, this.id);
+    //       }
+    //       function stopDrag() {
+    //           this.removeEventListener('mousemove', drag);
+    //           this.removeEventListener('mouseup', stopDrag);
+
+    //       }
+    //       this.addEventListener('mousemove', drag);
+    //       this.addEventListener('mouseup', stopDrag);
+    //   });
+    //   userComments.addEventListener('dblclick', function remove(){
+    //     socket.emit('delete comments', gClientId, values, this.id);
+    //     this.remove();
+    //   });
+    //   document.body.appendChild(userComments);
+    //   var x = values.x - textOnCanvas.offsetLeft,
+    //       y = values.y - textOnCanvas.offsetTop;
+    //   userComments.value = "x: " + x + " y: " + y;
+    //   userComments.style.top = values.y + 'px';
+    //   userComments.style.left = values.x + 'px';
+    //   textareaindex = commentId + 1;
+  });
+
+  socket.on("updated comment", function(commentId, comment) {
+    comments[commentId] = comment;
+    rerenderComments();
+  });
+
+  // socket.on("drag comments", function(clientID, values, commentId){
+  //   console.log(values.x + ' '+values.y);
+  //   var userComments = document.getElementById(commentId);
+  //     userComments.style.top = values.y + 'px';
+  //     userComments.style.left = values.x + 'px';
+  // });
+
+  socket.on("delete comments", function(commentId) {
+    comments[commentId] = undefined;
+    rerenderComments();
+    // console.log(values.x + ' '+values.y);
+    // var userComments = document.getElementById(commentId);
+    //   userComments.remove();
+  });
 
   socket.on("draw point", function(data_point, counter){
     var mouseX = data_point.location_x;

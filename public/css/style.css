@@ -10,7 +10,11 @@ body{
 }
 
 textarea{
-	border: none;
+	background: transparent;
+	color: white;
+	resize: none;
+	font-size: 5em;
+	outline: none;
 }
 
 .info {
