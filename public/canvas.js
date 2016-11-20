@@ -477,13 +477,6 @@ $(document).ready(function(){
     });
   });
 
-  socket.on('welcome', function(clientId) {
-  });
-
-  socket.on('user left', function(clientId){
-    $('label.client[data-value="' + clientId + '"]').remove();
-  });
-
   $(document).on(click, '.client', function(e){
     redraw($(this).attr('data-value'));
   });
