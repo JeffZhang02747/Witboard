@@ -78,6 +78,11 @@ button.color{
     background-color: transparent;
 }
 
+a.popFade{
+	position: absolute;
+	display: none;
+}
+
 label[for=color01] {background: gold;}
 label[for=color02] {background: darkorange;}
 label[for=color03] {background: navy;}

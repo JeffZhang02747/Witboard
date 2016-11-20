@@ -24,6 +24,7 @@ $(document).ready(function(){
   var data_point = {};
   var gClientId = -1;
   var passwordRequired = false;
+  var highlight = false;
 
   context = document.getElementById('canvas').getContext("2d");
   // Default styling
@@ -143,114 +144,166 @@ $(document).ready(function(){
 
 
   $('#textBoxButton').bind(click, function(e) {
-    // TODO redirect to new board.
-    if (showText == false){
-      showText = true;
-    }
-    else {
-      showText = false;
-    }
-  });
-
-
-  $('#canvas').bind(mouseDown, function(e){
-
     if(showText){
-      // var textOnCanvas = document.getElementById('canvas');
-      // mycomments[textareaindex] = document.createElement('textarea');
-      // mycomments[textareaindex].className = 'info';
-      // mycomments[textareaindex].name = 'textarea' + textareaindex;
-      // mycomments[textareaindex].id = textareaindex;
-      // mycomments[textareaindex].addEventListener('mousedown', function mouseDownOnTextarea(e) {
-      //     var x = this.offsetLeft - e.clientX,
-      //         y = this.offsetTop - e.clientY;
-      //     function drag(e) {
-      //         this.style.left = e.clientX + x + 'px';
-      //         this.style.top = e.clientY + y + 'px';
-      //         values.x = e.clientX + x;
-      //         values.y = e.clientY + y;
-      //         console.log("wow");
-      //         // debugger;
-      //         socket.emit('drag comments', gClientId, values, this.id);
-      //     }
-      //     function stopDrag() {
-      //         this.removeEventListener('mousemove', drag);
-      //         this.removeEventListener('mouseup', stopDrag);
-      //     }
-      //     this.addEventListener('mousemove', drag);
-      //     this.addEventListener('mouseup', stopDrag);
-      // });
-      // mycomments[textareaindex].addEventListener('dblclick', function remove(){
-      //   socket.emit('delete comments', gClientId, values, this.id);
-      //   this.remove();
-      // });
-      // document.body.appendChild(mycomments[textareaindex]);
-      // var values = {};
-      // values.x = e.clientX;
-      // values.y = e.clientY;
+      $('#textBoxButton').css('color', 'black');
+      $("#highlightButton").css("pointer-events", "auto");
+      $("#highlightButton").css('color', 'black');
+    }
+    else{
+      $('#textBoxButton').css('color', 'red');
+      $("#highlightButton").css("pointer-events", "none");
+      $("#highlightButton").css('color', 'grey');
+    }
+    showText = !showText;
+    
+  });
 
-      newTempComment = new Object();
-      newTempComment.authorClientId = gClientId;
-      newTempComment.message = "";
-      newTempComment.xPos = e.clientX;
-      newTempComment.yPos = e.clientY;
 
-      rerenderComments();
+  canvasReact();
 
-      socket.on("id for new comment", function(commentId) {
-         comments[commentId] = newTempComment;
-         newTempComment = undefined;
+  function canvasReact(){
+    $('#canvas').off(mouseDown);
+    $('#canvas').off(mouseUp);
+    $('#canvas').off(mouseMove);
+    $('#canvas').off(mouseLeave);
+    $('#canvas').off(click);
+
+    if(!highlight){
+      $('#canvas').bind(mouseDown, function(e){
+        if(showText){
+          // var textOnCanvas = document.getElementById('canvas');
+          // mycomments[textareaindex] = document.createElement('textarea');
+          // mycomments[textareaindex].className = 'info';
+          // mycomments[textareaindex].name = 'textarea' + textareaindex;
+          // mycomments[textareaindex].id = textareaindex;
+          // mycomments[textareaindex].addEventListener('mousedown', function mouseDownOnTextarea(e) {
+          //     var x = this.offsetLeft - e.clientX,
+          //         y = this.offsetTop - e.clientY;
+          //     function drag(e) {
+          //         this.style.left = e.clientX + x + 'px';
+          //         this.style.top = e.clientY + y + 'px';
+          //         values.x = e.clientX + x;
+          //         values.y = e.clientY + y;
+          //         console.log("wow");
+          //         // debugger;
+          //         socket.emit('drag comments', gClientId, values, this.id);
+          //     }
+          //     function stopDrag() {
+          //         this.removeEventListener('mousemove', drag);
+          //         this.removeEventListener('mouseup', stopDrag);
+          //     }
+          //     this.addEventListener('mousemove', drag);
+          //     this.addEventListener('mouseup', stopDrag);
+          // });
+          // mycomments[textareaindex].addEventListener('dblclick', function remove(){
+          //   socket.emit('delete comments', gClientId, values, this.id);
+          //   this.remove();
+          // });
+          // document.body.appendChild(mycomments[textareaindex]);
+          // var values = {};
+          // values.x = e.clientX;
+          // values.y = e.clientY;
+
+          newTempComment = new Object();
+          newTempComment.authorClientId = gClientId;
+          newTempComment.message = "";
+          newTempComment.xPos = e.clientX;
+          newTempComment.yPos = e.clientY;
+
+          rerenderComments();
+
+          socket.on("id for new comment", function(commentId) {
+             comments[commentId] = newTempComment;
+             newTempComment = undefined;
+          });
+          socket.emit("add comment", newTempComment.message, newTempComment.xPos, newTempComment.yPos);
+
+          // var x = e.clientX - textOnCanvas.offsetLeft,
+          //     y = e.clientY - textOnCanvas.offsetTop;
+          // mycomments[textareaindex].value = "x: " + x + " y: " + y;
+          // mycomments[textareaindex].style.top = e.clientY + 'px';
+          // mycomments[textareaindex].style.left = e.clientX + 'px';
+          textareaindex++;    
+          return;
+        }
+
+        var mouseX = e.pageX - this.offsetLeft;
+        var mouseY = e.pageY - this.offsetTop;
+          
+        paint = true;
+        addClick(gClientId, mouseX, mouseY, gColor, false);
+        redraw();
+        data_point.location_x = mouseX;
+        data_point.location_y = mouseY;
+        data_point.clientId = gClientId;
+        data_point.starting = true;
+        data_point.color = gColor;
+
+        counter += 1;
+        socket.emit("draw point", data_point, counter);
       });
-      socket.emit("add comment", newTempComment.message, newTempComment.xPos, newTempComment.yPos);
 
-      // var x = e.clientX - textOnCanvas.offsetLeft,
-      //     y = e.clientY - textOnCanvas.offsetTop;
-      // mycomments[textareaindex].value = "x: " + x + " y: " + y;
-      // mycomments[textareaindex].style.top = e.clientY + 'px';
-      // mycomments[textareaindex].style.left = e.clientX + 'px';
-      textareaindex++;    
-      return;
+      $('#canvas').bind(mouseMove, function(e){
+        if(paint){
+          var mouseX = e.pageX - this.offsetLeft;
+          var mouseY = e.pageY - this.offsetTop;
+          addClick(gClientId, mouseX, mouseY, gColor, true);
+          redraw();
+          data_point.location_x = mouseX;
+          data_point.location_y = mouseY;
+          data_point.clientId = gClientId;
+          data_point.starting = false;
+          data_point.color = gColor;
+
+          counter += 1;
+          socket.emit("draw point", data_point, counter);
+        }
+      });
+
+      $('#canvas').bind(mouseUp, function(e){
+        paint = false;
+      });
+
+      $('#canvas').bind(mouseLeave, function(e){
+        paint = false;
+      });
     }
+    else{
+      $('#canvas').bind(mouseUp, function(e){
+        var mouseX = e.pageX;
+        var mouseY = e.pageY;
+        socket.emit('highlight', mouseX, mouseY, gClientId);
+        showHighlight(mouseX, mouseY, gClientId);
 
-    var mouseX = e.pageX - this.offsetLeft;
-    var mouseY = e.pageY - this.offsetTop;
-      
-    paint = true;
-    addClick(gClientId, mouseX, mouseY, gColor, false);
-    redraw();
-    data_point.location_x = mouseX;
-    data_point.location_y = mouseY;
-    data_point.clientId = gClientId;
-    data_point.starting = true;
-    data_point.color = gColor;
-
-    counter += 1;
-    socket.emit("draw point", data_point, counter);
-  });
-
-  $('#canvas').bind(mouseMove, function(e){
-    if(paint){
-      var mouseX = e.pageX - this.offsetLeft;
-      var mouseY = e.pageY - this.offsetTop;
-      addClick(gClientId, mouseX, mouseY, gColor, true);
-      redraw();
-      data_point.location_x = mouseX;
-      data_point.location_y = mouseY;
-      data_point.clientId = gClientId;
-      data_point.starting = false;
-      data_point.color = gColor;
-
-      counter += 1;
-      socket.emit("draw point", data_point, counter);
+      });
     }
+  }
+  // end canvas react function
+  function showHighlight(x, y, clientId){
+    $('a.popFade').css('top', y);
+    $('a.popFade').css('left', x);
+    $('a.popFade').text(clientId);
+    $('a.popFade').fadeIn('slow').delay(1000).fadeOut('slow');
+  }
+
+  socket.on("highlight", function(x, y, clientId){
+    showHighlight(x, y, clientId)
   });
 
-  $('#canvas').bind(mouseUp, function(e){
-    paint = false;
-  });
+  $('#highlightButton').bind(click, function(e){
+    if(highlight){
+      $('#highlightButton').css('color', 'black');
+      $("#textBoxButton").css("pointer-events", "auto");
+      $("#textBoxButton").css('color', 'black');
+    }
+    else{
+      $('#highlightButton').css('color', 'red');
+      $("#textBoxButton").css("pointer-events", "none");
+      $("#textBoxButton").css('color', 'grey');
 
-  $('#canvas').bind(mouseLeave, function(e){
-    paint = false;
+    }
+    highlight = !highlight;
+    canvasReact();
   });
 
   function passwordInit(){
