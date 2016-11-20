@@ -28,9 +28,31 @@ module.exports = {
         this.drawingData = {};
         // comments data (TODO which datastructure?)
         this.comments = new Array();
-
+        // array of client ids for the still active (not disconnected) clients,
+        // ordered by activity (from most recently active to least recently active)
+        this.activeClientIds = new Array();
 
         ///////////////////// method definitions start ///////////////////
+
+        this.notifyAboutActiveClients = function() {
+            this.boardNameSpace.emit('active user list updated', this.activeClientIds);
+        }
+
+        // call this method when a client just got active; pass in the id for that client;
+        // notifies users if necessary
+        // safe when clientId is not in activeClientIds (in that case it's just added to the front)
+        this.updateClientActivity = function(clientId) {
+            if (activeClientIds[0] !== clientId) {
+                // move clientId to the front of the array..
+                var idx = activeClientIds.indexOf(clientId);
+                if (idx >= 0) {
+                    activeClientIds.splice(idx, 1);
+                }
+                activeClientIds.unshift(clientId);
+
+                this.notifyAboutActiveClients();
+            }
+        }
 
         this.setUpCommentHandlers = function (clientId, socket) {
             var boardDirector = this;
@@ -61,6 +83,7 @@ module.exports = {
                 
                 socket.emit('id for new comment', commentId);
                 socket.broadcast.emit('new comment', commentId, newComment);
+                this.updateClientActivity(clientId);
             });
 
             socket.on('edit comment', function(commentId, message, xPos, yPos) {
@@ -72,6 +95,7 @@ module.exports = {
                 comment.yPos = yPos;
 
                 socket.broadcast.emit('updated comment', commentId, comment);
+                this.updateClientActivity(clientId);
             });
 
             socket.on('delete comment', function(commentId) {
@@ -81,6 +105,7 @@ module.exports = {
                 boardDirector.comments[commentId] = undefined;
 
                 socket.broadcast.emit('deleted comment', commentId);
+                this.updateClientActivity(clientId);
             });
         }
 
@@ -130,6 +155,7 @@ module.exports = {
             socket.on("draw point", function(data_point, counter){
                 boardDirector.drawingData[clientId].push(data_point);
                 socket.broadcast.emit('draw point', data_point, counter);
+                this.updateClientActivity(clientId);
             });
 
             this.setUpCommentHandlers(clientId, socket);
@@ -150,7 +176,7 @@ module.exports = {
                 socket.emit('board created', retId);
             });
 
-            socket.broadcast.emit('welcome', clientId);
+            this.updateClientActivity(clientId);
         };
 
         // persists current state to the database
