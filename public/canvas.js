@@ -17,7 +17,7 @@ $(document).ready(function(){
   // array of textarea objects;
   // this array is kept in sync with comments
   var commentTextAreas = new Array();
-  var showText = false;
+  var addCommentMode = false;
   var textarea = null;
   var textareaindex = 0;  // TODO delete this var? don't think we're using it anymore?
   var textareahidden = false;
@@ -148,18 +148,18 @@ $(document).ready(function(){
   });
 
 
-  $('#textBoxButton').bind(click, function(e) {
-    if(showText){
-      $('#textBoxButton').css('color', 'black');
+  $('#addCommentButton').bind(click, function(e) {
+    if(addCommentMode){
+      $('#addCommentButton').css('color', 'black');
       $("#highlightButton").css("pointer-events", "auto");
       $("#highlightButton").css('color', 'black');
     }
     else{
-      $('#textBoxButton').css('color', 'red');
+      $('#addCommentButton').css('color', 'red');
       $("#highlightButton").css("pointer-events", "none");
       $("#highlightButton").css('color', 'grey');
     }
-    showText = !showText;
+    addCommentMode = !addCommentMode;
     
   });
 
@@ -176,8 +176,8 @@ $(document).ready(function(){
     if(!highlight){
       $('#canvas').bind(mouseDown, function(e){
         // comment part
-        if(showText){
-          showText = false;
+        if(addCommentMode){
+          addCommentMode = false;
           newTempComment = {};
           newTempComment.authorClientId = gClientId;
           newTempComment.message = "";
@@ -256,13 +256,13 @@ $(document).ready(function(){
   $('#highlightButton').bind(click, function(e){
     if(highlight){
       $('#highlightButton').css('color', 'black');
-      $("#textBoxButton").css("pointer-events", "auto");
-      $("#textBoxButton").css('color', 'black');
+      $("#addCommentButton").css("pointer-events", "auto");
+      $("#addCommentButton").css('color', 'black');
     }
     else{
       $('#highlightButton').css('color', 'red');
-      $("#textBoxButton").css("pointer-events", "none");
-      $("#textBoxButton").css('color', 'grey');
+      $("#addCommentButton").css("pointer-events", "none");
+      $("#addCommentButton").css('color', 'grey');
 
     }
     highlight = !highlight;
