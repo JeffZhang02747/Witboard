@@ -25,6 +25,7 @@ $(document).ready(function(){
   var gClientId = -1;
   var passwordRequired = false;
   var highlight = false;
+  var ableFade = true;
 
   context = document.getElementById('canvas').getContext("2d");
   // Default styling
@@ -270,20 +271,22 @@ $(document).ready(function(){
     }
     else{
       $('#canvas').bind(mouseUp, function(e){
-        var mouseX = e.pageX;
-        var mouseY = e.pageY;
-        socket.emit('highlight', mouseX, mouseY, gClientId);
-        showHighlight(mouseX, mouseY, gClientId);
-
+        if(ableFade){
+          var mouseX = e.pageX;
+          var mouseY = e.pageY;
+          socket.emit('highlight', mouseX, mouseY, gClientId);
+          showHighlight(mouseX, mouseY, gClientId);
+        }
       });
     }
   }
   // end canvas react function
   function showHighlight(x, y, clientId){
+    ableFade = false;
     $('a.popFade').css('top', y);
     $('a.popFade').css('left', x);
     $('a.popFade').text(clientId);
-    $('a.popFade').fadeIn('slow').delay(1000).fadeOut('slow');
+    $('a.popFade').fadeIn('fast').delay(1000).fadeOut('fast', function(){ableFade = true; });
   }
 
   socket.on("highlight", function(x, y, clientId){
