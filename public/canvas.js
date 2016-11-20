@@ -11,7 +11,6 @@ $(document).ready(function(){
 
 
   var newTempComment = undefined; // undefined means there's no newTempComment
-  var oldTempComment = undefined; 
 
 
   var comments = new Array();
@@ -414,9 +413,6 @@ $(document).ready(function(){
 
     if (typeof(newTempComment) !== "undefined") {
       addTextArea("tempId", newTempComment);
-    }
-    if (typeof(oldTempComment) !== "undefined") {
-      addTextArea("oldTempId", oldTempComment);
     }
   }
 
