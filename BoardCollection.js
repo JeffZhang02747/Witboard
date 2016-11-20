@@ -35,6 +35,9 @@ module.exports = {
                 var retId = newBoard();
                 socket.emit('board created', retId);
             });
+
+            var retId = newBoard();
+            socket.emit('board created', retId);
         });
 
 
