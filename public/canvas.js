@@ -437,17 +437,14 @@ $(document).ready(function(){
     gClientId = clientId;
     var other_points = {};
     var client_color = "white";
-    $('.mainSection').append("<label class='client' style='color: yellow;' data-value='-1'>DEF</label>");
+    $('.mainSection .avatar-section').append("<label class='client' style='color: yellow;' data-value='-1'>DEF</label>");
 
     if( allowChangePassword ){
       $('#passwordArea').css('display', 'inline');
     }
 
     $.each(r_points, function(other_clientId, other_points) {
-      if(other_clientId == clientId){
-        client_color = "red";
-      }
-      $('.mainSection').append("<label class='client' style='color: " + client_color + ";' data-value='" + other_clientId + "'>" + other_clientId + "</label>");
+      // $('.mainSection').append("<label class='client' style='color: " + client_color + ";' data-value='" + other_clientId + "'>" + other_clientId + "</label>");
       $.each(other_points, function(index, other_point) {
         addClick(other_clientId, other_point.location_x, other_point.location_y, other_point.color, !other_point.starting);
       });
@@ -466,8 +463,21 @@ $(document).ready(function(){
       window.location.pathname = newPath;
   });
 
+  socket.on('active user list updated', function(clientIds){
+    $('label.client').remove();
+    var client_color = "white";
+    clientIds.forEach(function(clientId) {
+      if(gClientId == clientId){
+        client_color = "red";
+      }
+      else{
+        client_color = "white";
+      }
+      $('.mainSection .avatar-section').after("<label class='client' style='color: " + client_color + ";' data-value='" + clientId + "'>" + clientId + "</label>");
+    });
+  });
+
   socket.on('welcome', function(clientId) {
-      $('.mainSection').append("<label class='client' style='color: white;' data-value='" + clientId + "'>" + clientId + "</label>");
   });
 
   socket.on('user left', function(clientId){
