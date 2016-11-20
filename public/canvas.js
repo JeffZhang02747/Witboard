@@ -362,8 +362,9 @@ $(document).ready(function(){
           this.addEventListener(mouseUp, stopDrag);
       });
       division.addEventListener('dblclick', function remove(){
-        socket.emit('delete comment', division.id);
+        comments[commentId] = undefined;
         this.remove();
+        socket.emit('delete comment', division.id);
       });
 
       var commited = false;
