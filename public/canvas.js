@@ -302,7 +302,7 @@ $(document).ready(function(){
           function drag(e) {
               this.style.left = e.clientX + x + 'px';
               this.style.top = e.clientY + y + 'px';
-              var values;
+              var values = {};
               values.x = e.clientX + x;
               values.y = e.clientY + y;
               // debugger;
@@ -318,7 +318,7 @@ $(document).ready(function(){
           this.addEventListener('mouseup', stopDrag);
       });
       userComments.addEventListener('dblclick', function remove(){
-        socket.emit('delete comments', gClientId, values, this.id);
+        socket.emit('delete comments', this.id);
         this.remove();
       });
       document.body.appendChild(userComments);
