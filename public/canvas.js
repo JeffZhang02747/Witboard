@@ -28,7 +28,7 @@ $(document).ready(function(){
   var data_point = {};
   var gClientId = -1;
   var passwordRequired = false;
-  var highlight = false;
+  var highlightMode = false;
   var ableFade = true;
 
   context = document.getElementById('canvas').getContext("2d");
@@ -68,6 +68,36 @@ $(document).ready(function(){
       return null; 
     }
     return regexMatches[1];
+  }
+
+  function rerenderButtonStates() {
+    if (addCommentMode && highlightMode) {
+      alert("WARNING! addCommentMode && highlightMode are both true!!");
+    }
+
+    // settings for add comment button
+    if(addCommentMode){
+      $('#addCommentButton').css('color', 'red');
+      $("#addCommentButton").css("pointer-events", "auto");
+    } else if(!highlightMode) {
+      $('#addCommentButton').css('color', 'black');
+      $("#addCommentButton").css("pointer-events", "auto");
+    } else {
+      $('#addCommentButton').css('color', 'grey');
+      $("#addCommentButton").css("pointer-events", "none"); 
+    }
+
+    // settings for highlight button
+    if(highlightMode){
+      $('#highlightButton').css('color', 'red');
+      $("#highlightButton").css("pointer-events", "auto");
+    } else if(!addCommentMode) {
+      $('#highlightButton').css('color', 'black');
+      $("#highlightButton").css("pointer-events", "auto");
+    } else {
+      $('#highlightButton').css('color', 'grey');
+      $("#highlightButton").css("pointer-events", "none"); 
+    }
   }
 
   function addClick(clientId, x, y, color, dragging)
@@ -149,18 +179,8 @@ $(document).ready(function(){
 
 
   $('#addCommentButton').bind(click, function(e) {
-    if(addCommentMode){
-      $('#addCommentButton').css('color', 'black');
-      $("#highlightButton").css("pointer-events", "auto");
-      $("#highlightButton").css('color', 'black');
-    }
-    else{
-      $('#addCommentButton').css('color', 'red');
-      $("#highlightButton").css("pointer-events", "none");
-      $("#highlightButton").css('color', 'grey');
-    }
     addCommentMode = !addCommentMode;
-    
+    rerenderButtonStates();
   });
 
 
@@ -173,11 +193,13 @@ $(document).ready(function(){
     $('#canvas').off(mouseLeave);
     $('#canvas').off(click);
 
-    if(!highlight){
+    if(!highlightMode){
       $('#canvas').bind(mouseDown, function(e){
         // comment part
         if(addCommentMode){
           addCommentMode = false;
+          rerenderButtonStates();
+
           newTempComment = {};
           newTempComment.authorClientId = gClientId;
           newTempComment.message = "";
@@ -254,18 +276,8 @@ $(document).ready(function(){
   });
 
   $('#highlightButton').bind(click, function(e){
-    if(highlight){
-      $('#highlightButton').css('color', 'black');
-      $("#addCommentButton").css("pointer-events", "auto");
-      $("#addCommentButton").css('color', 'black');
-    }
-    else{
-      $('#highlightButton').css('color', 'red');
-      $("#addCommentButton").css("pointer-events", "none");
-      $("#addCommentButton").css('color', 'grey');
-
-    }
-    highlight = !highlight;
+    highlightMode = !highlightMode;
+    rerenderButtonStates();
     canvasReact();
   });
 
