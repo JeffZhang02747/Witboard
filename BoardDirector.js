@@ -42,17 +42,17 @@ module.exports = {
         // notifies users if necessary
         // safe when clientId is not in activeClientIds (in that case it's just added to the front)
         this.updateClientActivity = function(clientId) {
-            if (activeClientIds[0] !== clientId) {
+            if (this.activeClientIds[0] !== clientId) {
                 // move clientId to the front of the array..
-                var idx = activeClientIds.indexOf(clientId);
+                var idx = this.activeClientIds.indexOf(clientId);
                 if (idx >= 0) {
-                    activeClientIds.splice(idx, 1);
+                    this.activeClientIds.splice(idx, 1);
                 }
-                activeClientIds.unshift(clientId);
+                this.activeClientIds.unshift(clientId);
 
                 this.notifyAboutActiveClients();
             }
-        }
+        };
 
         this.setUpCommentHandlers = function (clientId, socket) {
             var boardDirector = this;
@@ -83,7 +83,7 @@ module.exports = {
                 
                 socket.emit('id for new comment', commentId);
                 socket.broadcast.emit('new comment', commentId, newComment);
-                this.updateClientActivity(clientId);
+                boardDirector.updateClientActivity(clientId);
             });
 
             socket.on('edit comment', function(commentId, message, xPos, yPos) {
@@ -95,7 +95,7 @@ module.exports = {
                 comment.yPos = yPos;
 
                 socket.broadcast.emit('updated comment', commentId, comment);
-                this.updateClientActivity(clientId);
+                boardDirector.updateClientActivity(clientId);
             });
 
             socket.on('delete comment', function(commentId) {
@@ -105,7 +105,7 @@ module.exports = {
                 boardDirector.comments[commentId] = undefined;
 
                 socket.broadcast.emit('deleted comment', commentId);
-                this.updateClientActivity(clientId);
+                boardDirector.updateClientActivity(clientId);
             });
         }
 
@@ -155,7 +155,7 @@ module.exports = {
             socket.on("draw point", function(data_point, counter){
                 boardDirector.drawingData[clientId].push(data_point);
                 socket.broadcast.emit('draw point', data_point, counter);
-                this.updateClientActivity(clientId);
+                boardDirector.updateClientActivity(clientId);
             });
 
             this.setUpCommentHandlers(clientId, socket);
