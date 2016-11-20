@@ -19,21 +19,20 @@ module.exports = {
 
         var newBoard = function() {
             var newBoardId = guid();
-            while (newBoardId in boardDirectorMap) {
+            while (newBoardId in boardDirectorMap 
+                    || !(newBoardId >= '0' && newBoardId <= '9')) { // somehow id's that start with a letter breaks stuff..
                 newBoardId = guid();
             }
             
             var boardNameSpace = io.of('/' + newBoardId);
-            boardDirectorMap[newBoardId] = new BoardDirector.BoardDirector(newBoardId, boardNameSpace);
+            boardDirectorMap[newBoardId] = new BoardDirector.BoardDirector(newBoardId, boardNameSpace, newBoard);
             return newBoardId;
         };
 
 
         io.on('connection', function(socket){
-            socket.on('new board', function() {
-                var retId = newBoard();
-                socket.emit('board created', retId);
-            });
+            var retId = newBoard();
+            socket.emit('board created', retId);
         });
 
 
