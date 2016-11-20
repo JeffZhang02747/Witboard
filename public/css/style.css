@@ -47,6 +47,7 @@ label.client{
 }
 
 input[type=radio] {
+	-webkit-appearance: none;
 	margin: 0;
 	display: none;
 	width: 0;

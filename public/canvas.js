@@ -37,6 +37,22 @@ $(document).ready(function(){
   var r_points = {};
   var gColorList = ["gold", "darkorange", "navy", "yellowgreen", "firebrick", "powderblue", "white"];
 
+  // Event types
+  var mouseDown = 'mousedown',
+  mouseMove = 'mousemove',
+  mouseUp = 'mouseup',
+  mouseLeave = 'mouseleave',
+  click = 'click';
+  if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
+    mouseDown = 'touchstart';
+    mouseMove = 'touchmove';
+    mouseUp = 'touchend';
+    mouseLeave = 'touchend';
+    click = 'touchend';
+    $('html, body').on('touchstart touchmove', function(e){ 
+         e.preventDefault(); 
+    });
+  }
 
   // returns the current board id if it exists, returns null otherwise
   function getCurrBoardId() {
@@ -63,29 +79,29 @@ $(document).ready(function(){
     points[clientId].color.push(color);
   }
 
-  $('#color01').click(function(e){
+  $('#color01').bind(click, function(e){
     gColor = 0;
   });
-  $('#color02').click(function(e){
+  $('#color02').bind(click, function(e){
     gColor = 1;
   });
-  $('#color03').click(function(e){
+  $('#color03').bind(click, function(e){
     gColor = 2;
   });
-  $('#color04').click(function(e){
+  $('#color04').bind(click, function(e){
     gColor = 3;
   });
-  $('#color05').click(function(e){
+  $('#color05').bind(click, function(e){
     gColor = 4;
   });
-  $('#color06').click(function(e){
+  $('#color06').bind(click, function(e){
     gColor = 5;
   });
-  $('#color07').click(function(e){
+  $('#color07').bind(click, function(e){
     gColor = 6;
   });
 
-  $('#downloadButton').click(function(e) {
+  $('#downloadButton').bind(click, function(e) {
     html2canvas($("#canvas"), {
         onrendered: function(canvas) {         
             var imgData = canvas.toDataURL(
@@ -97,7 +113,7 @@ $(document).ready(function(){
     });
   }); 
 
-  $('#hideTextArea').click(function(e){
+  $('#hideTextArea').bind(click, function(e){
 
     if (textareahidden == false){
       textareahidden = true;
@@ -114,19 +130,19 @@ $(document).ready(function(){
     }
   });
 
-  $('#newBoardButton').click(function(e) {
+  $('#newBoardButton').bind(click, function(e) {
     // TODO redirect to new board.
     socket.emit('new board');
   });
 
 
-  $('#cloneButton').click(function(e) {
+  $('#cloneButton').bind(click, function(e) {
     // TODO redirect to new board.
     socket.emit('clone board');
   });
 
 
-  $('#textBoxButton').click(function(e) {
+  $('#textBoxButton').bind(click, function(e) {
     // TODO redirect to new board.
     if (showText == false){
       showText = true;
@@ -137,7 +153,7 @@ $(document).ready(function(){
   });
 
 
-  $('#canvas').mousedown(function(e){
+  $('#canvas').bind(mouseDown, function(e){
 
     if(showText){
       // var textOnCanvas = document.getElementById('canvas');
@@ -212,7 +228,7 @@ $(document).ready(function(){
     socket.emit("draw point", data_point, counter);
   });
 
-  $('#canvas').mousemove(function(e){
+  $('#canvas').bind(mouseMove, function(e){
     if(paint){
       var mouseX = e.pageX - this.offsetLeft;
       var mouseY = e.pageY - this.offsetTop;
@@ -229,11 +245,11 @@ $(document).ready(function(){
     }
   });
 
-  $('#canvas').mouseup(function(e){
+  $('#canvas').bind(mouseUp, function(e){
     paint = false;
   });
 
-  $('#canvas').mouseleave(function(e){
+  $('#canvas').bind(mouseLeave, function(e){
     paint = false;
   });
 
@@ -246,7 +262,7 @@ $(document).ready(function(){
     }
   }
 
-  $(document).on('click', '#verify-submit', function(e){
+  $(document).on(click, '#verify-submit', function(e){
     socket.emit('verify with password', $('#password-input').val());
   });
 
@@ -296,7 +312,7 @@ $(document).ready(function(){
       userComments.className = 'info';
       userComments.name = 'textarea' + textareaindex;
       userComments.id = commentId;
-      userComments.addEventListener('mousedown', function mouseDownOnTextarea(e) {
+      userComments.addEventListener(mouseDown, function mouseDownOnTextarea(e) {
           var x = userComments.offsetLeft - e.clientX,
               y = userComments.offsetTop - e.clientY;
           function drag(e) {
@@ -310,12 +326,12 @@ $(document).ready(function(){
               socket.emit('drag comments', gClientId, values, this.id);
           }
           function stopDrag() {
-              this.removeEventListener('mousemove', drag);
-              this.removeEventListener('mouseup', stopDrag);
+              this.removeEventListener(mouseMove, drag);
+              this.removeEventListener(mouseUp, stopDrag);
 
           }
-          this.addEventListener('mousemove', drag);
-          this.addEventListener('mouseup', stopDrag);
+          this.addEventListener(mouseMove, drag);
+          this.addEventListener(mouseUp, stopDrag);
       });
       userComments.addEventListener('dblclick', function remove(){
         socket.emit('delete comments', gClientId, values, this.id);
@@ -458,11 +474,11 @@ $(document).ready(function(){
     $('label.client[data-value="' + clientId + '"]').remove();
   });
 
-  $(document).on('click', '.client', function(e){
+  $(document).on(click, '.client', function(e){
     redraw($(this).attr('data-value'));
   });
 
-  $(document).on('click', 'button#setPassword', function(e){
+  $(document).on(click, 'button#setPassword', function(e){
     socket.emit('set-password', $('#password-area').val());
   });
 
