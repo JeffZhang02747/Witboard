@@ -25,7 +25,7 @@ module.exports = {
 
         // state about the current drawing
         // an object used as a map associating client ids to arrays of data_point
-        // objects.
+        // fs.
         this.drawingData = {};
         // comments data (TODO which datastructure?)
         this.comments = new Array();
@@ -60,7 +60,11 @@ module.exports = {
 
             // returns the comment to edit/delete if valid, or undefined otherwise.
             // if invalid, also notifies the client
-            var checkIfValidEdit = new function (commentId) {
+            var checkIfValidEdit = function (commentId) {
+                console.log("checkif valid");
+                console.log(commentId);
+
+
                 var comment = boardDirector.comments[commentId];
                 if (typeof(comment) === 'undefined') {
                     socket.emit('invalid edit/delete comment', 
@@ -76,20 +80,25 @@ module.exports = {
                 return comment;
             };
 
+
             socket.on('add comment', function(message, xPos, yPos) {
+                console.log("get new comment");
                 // commentId is the same as the index to boardDirector.comments
                 var commentId = boardDirector.comments.length;
                 var newComment = new Comment.Comment(clientId, message, xPos, yPos);
                 boardDirector.comments.push(newComment);
-                
+
                 socket.emit('id for new comment', commentId);
                 socket.broadcast.emit('new comment', commentId, newComment);
                 boardDirector.updateClientActivity(clientId);
             });
 
             socket.on('edit comment', function(commentId, message, xPos, yPos) {
+                console.log("get edit comment");
+
                 var comment = checkIfValidEdit(commentId);
-                if (!comment) { return; }
+
+                if (!comment) { console.log("not a comment"); return; }
 
                 comment.message = message;
                 comment.xPos = xPos;
@@ -182,7 +191,8 @@ module.exports = {
             });
 
             // the initialize event is only sent when the user is granted access to the board
-            socket.emit("initialize", clientId, this.drawingData, allowChangePassword);
+            socket.emit("initialize", clientId, this.drawingData, allowChangePassword, this.comments);
+
 
             socket.on('clone board', function() {
                 var retId = global.collection.cloneBoard(boardDirector.drawingData, boardDirector.nextClientId);

@@ -8,7 +8,12 @@ $(document).ready(function(){
   }
   var mycomments = {}; // TODO get rid of this?
   // a new comment object which isn't assigned an commentId yet.
+
+
   var newTempComment = undefined; // undefined means there's no newTempComment
+  var oldTempComment = undefined; 
+
+
   var comments = new Array();
   // array of textarea objects;
   // this array is kept in sync with comments
@@ -170,60 +175,16 @@ $(document).ready(function(){
 
     if(!highlight){
       $('#canvas').bind(mouseDown, function(e){
+        // comment part
         if(showText){
-          // var textOnCanvas = document.getElementById('canvas');
-          // mycomments[textareaindex] = document.createElement('textarea');
-          // mycomments[textareaindex].className = 'info';
-          // mycomments[textareaindex].name = 'textarea' + textareaindex;
-          // mycomments[textareaindex].id = textareaindex;
-          // mycomments[textareaindex].addEventListener('mousedown', function mouseDownOnTextarea(e) {
-          //     var x = this.offsetLeft - e.clientX,
-          //         y = this.offsetTop - e.clientY;
-          //     function drag(e) {
-          //         this.style.left = e.clientX + x + 'px';
-          //         this.style.top = e.clientY + y + 'px';
-          //         values.x = e.clientX + x;
-          //         values.y = e.clientY + y;
-          //         console.log("wow");
-          //         // debugger;
-          //         socket.emit('drag comments', gClientId, values, this.id);
-          //     }
-          //     function stopDrag() {
-          //         this.removeEventListener('mousemove', drag);
-          //         this.removeEventListener('mouseup', stopDrag);
-          //     }
-          //     this.addEventListener('mousemove', drag);
-          //     this.addEventListener('mouseup', stopDrag);
-          // });
-          // mycomments[textareaindex].addEventListener('dblclick', function remove(){
-          //   socket.emit('delete comments', gClientId, values, this.id);
-          //   this.remove();
-          // });
-          // document.body.appendChild(mycomments[textareaindex]);
-          // var values = {};
-          // values.x = e.clientX;
-          // values.y = e.clientY;
-
-          newTempComment = new Object();
+          showText = false;
+          newTempComment = {};
           newTempComment.authorClientId = gClientId;
           newTempComment.message = "";
           newTempComment.xPos = e.clientX;
           newTempComment.yPos = e.clientY;
 
           rerenderComments();
-
-          socket.on("id for new comment", function(commentId) {
-             comments[commentId] = newTempComment;
-             newTempComment = undefined;
-          });
-          socket.emit("add comment", newTempComment.message, newTempComment.xPos, newTempComment.yPos);
-
-          // var x = e.clientX - textOnCanvas.offsetLeft,
-          //     y = e.clientY - textOnCanvas.offsetTop;
-          // mycomments[textareaindex].value = "x: " + x + " y: " + y;
-          // mycomments[textareaindex].style.top = e.clientY + 'px';
-          // mycomments[textareaindex].style.left = e.clientX + 'px';
-          textareaindex++;    
           return;
         }
 
@@ -348,7 +309,10 @@ $(document).ready(function(){
   }
 
   function rerenderComments() {
-    $(document).remove('textarea');
+    console.log( comments );
+
+
+    $('.info').remove();
     // for(var i=0; i<comments.length; i++){
       
     //   // TODO does this work?
@@ -365,9 +329,10 @@ $(document).ready(function(){
       userComments.className = 'info';
       userComments.name = 'textarea' + textareaindex;
       userComments.id = commentId;
-      userComments.addEventListener(mouseDown, function mouseDownOnTextarea(e) {
-          var x = userComments.offsetLeft - e.clientX,
-              y = userComments.offsetTop - e.clientY;
+
+      userComments.addEventListener('mousedown', function mouseDownOnTextarea(e) {
+          var x = this.offsetLeft - e.clientX,
+              y = this.offsetTop - e.clientY;
           function drag(e) {
               this.style.left = e.clientX + x + 'px';
               this.style.top = e.clientY + y + 'px';
@@ -376,95 +341,86 @@ $(document).ready(function(){
               values.y = e.clientY + y;
               // debugger;
               // console.log('is this getting called? ', this.id);
-              socket.emit('drag comments', gClientId, values, this.id);
+              socket.emit("edit comment", this.id, this.value, parseInt(this.style.left), parseInt(this.style.top) );
           }
           function stopDrag() {
-              this.removeEventListener(mouseMove, drag);
-              this.removeEventListener(mouseUp, stopDrag);
-
+              this.removeEventListener('mousemove', drag);
+              this.removeEventListener('mouseup', stopDrag);
           }
           this.addEventListener(mouseMove, drag);
           this.addEventListener(mouseUp, stopDrag);
       });
       userComments.addEventListener('dblclick', function remove(){
-        socket.emit('delete comments', this.id);
+        socket.emit('delete comment', userComments.id);
         this.remove();
       });
-      document.body.appendChild(userComments);
-      // var x = values.x - textOnCanvas.offsetLeft,
-      //     y = values.y - textOnCanvas.offsetTop;
+
+      var commited = false;
+      userComments.addEventListener('blur', function() {
+        console.log( userComments.value );
+        console.log("blur this");
+        if (userComments.value != "") {
+          comment.message = userComments.value;
+          if (commentId == "tempId" && !commited) {
+            commited = true;
+
+            socket.emit("add comment", userComments.value, parseInt(userComments.style.left), parseInt(userComments.style.top) );
+            socket.on("id for new comment", function(commentId) {
+               userComments.id = commentId;
+               comments[commentId] = comment;
+               newTempComment = undefined;
+            });
+          } else {
+              socket.emit("edit comment", this.id, userComments.value, parseInt(userComments.style.left), parseInt(
+              userComments.style.top));
+          }
+        }
+      })
 
       userComments.value = comment.message;
       userComments.style.top = comment.yPos + 'px';
       userComments.style.left = comment.xPos + 'px';
+      console.log(userComments.id);
+      console.log('I WANT to render this message:' + userComments.value);
+      document.body.appendChild(userComments);
     }
 
-    $.each(comments, addTextArea);
+    // $.each(comments, addTextArea);
+
+    for ( var index in comments ) {
+
+      if ( comments[index] != undefined){
+        addTextArea(index, comments[index]);
+      }
+    }
+
     if (typeof(newTempComment) !== "undefined") {
       addTextArea("tempId", newTempComment);
+    }
+    if (typeof(oldTempComment) !== "undefined") {
+      addTextArea("oldTempId", oldTempComment);
     }
   }
 
   socket.on("new comment", function(commentId, comment){
+    console.log("wow this comment");
+
     comments[commentId] = comment;
     rerenderComments();
 
-    // var textOnCanvas = document.getElementById('canvas');
-    // var userComments = document.createElement('textarea');
-    //   userComments.className = 'info';
-    //   userComments.name = 'textarea' + textareaindex;
-    //   userComments.id = commentId;
-    //   userComments.addEventListener('mousedown', function mouseDownOnTextarea(e) {
-    //       var x = userComments.offsetLeft - e.clientX,
-    //           y = userComments.offsetTop - e.clientY;
-    //       function drag(e) {
-    //           this.style.left = e.clientX + x + 'px';
-    //           this.style.top = e.clientY + y + 'px';
-    //           values.x = e.clientX + x;
-    //           values.y = e.clientY + y;
-    //           // debugger;
-    //           // console.log('is this getting called? ', this.id);
-    //           socket.emit('drag comments', gClientId, values, this.id);
-    //       }
-    //       function stopDrag() {
-    //           this.removeEventListener('mousemove', drag);
-    //           this.removeEventListener('mouseup', stopDrag);
-
-    //       }
-    //       this.addEventListener('mousemove', drag);
-    //       this.addEventListener('mouseup', stopDrag);
-    //   });
-    //   userComments.addEventListener('dblclick', function remove(){
-    //     socket.emit('delete comments', gClientId, values, this.id);
-    //     this.remove();
-    //   });
-    //   document.body.appendChild(userComments);
-    //   var x = values.x - textOnCanvas.offsetLeft,
-    //       y = values.y - textOnCanvas.offsetTop;
-    //   userComments.value = "x: " + x + " y: " + y;
-    //   userComments.style.top = values.y + 'px';
-    //   userComments.style.left = values.x + 'px';
-    //   textareaindex = commentId + 1;
   });
 
   socket.on("updated comment", function(commentId, comment) {
     comments[commentId] = comment;
+    console.log("comment update received");
+    console.log(comment);
     rerenderComments();
   });
 
-  // socket.on("drag comments", function(clientID, values, commentId){
-  //   console.log(values.x + ' '+values.y);
-  //   var userComments = document.getElementById(commentId);
-  //     userComments.style.top = values.y + 'px';
-  //     userComments.style.left = values.x + 'px';
-  // });
 
-  socket.on("delete comments", function(commentId) {
+  socket.on("deleted comment", function(commentId) {
     comments[commentId] = undefined;
     rerenderComments();
-    // console.log(values.x + ' '+values.y);
-    // var userComments = document.getElementById(commentId);
-    //   userComments.remove();
   });
 
   socket.on("draw point", function(data_point, counter){
@@ -482,9 +438,11 @@ $(document).ready(function(){
     redraw();
   });
 
-  socket.on("initialize", function(clientId, r_points, allowChangePassword){
+  socket.on("initialize", function(clientId, r_points, allowChangePassword, passedComments){
 
     $('#password-modal').modal('hide');
+    comments = passedComments;
+    rerenderComments();
 
 
     gClientId = clientId;
