@@ -10,11 +10,16 @@ body{
 }
 
 textarea{
-	background: transparent;
 	color: white;
 	resize: none;
 	font-size: 5em;
 	outline: none;
+}
+
+textarea.userComment{  
+    background: transparent; 
+    border: 0px;
+    vertical-align: bottom;
 }
 
 .info {
@@ -44,6 +49,11 @@ label.client{
     text-align: center;
 	font-size: 15px;
 	float: right; 
+}
+
+label.textareaLabel{
+    font-size: 15px;
+    width: 55px;
 }
 
 input[type=radio] {
