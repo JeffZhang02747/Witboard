@@ -70,6 +70,14 @@ label {
 	line-height: 46px;
 }
 
+button.color{
+    height: 50px;
+    width: 50px;
+    border-radius: 50px;
+    border: 0px;
+    background-color: transparent;
+}
+
 label[for=color01] {background: gold;}
 label[for=color02] {background: darkorange;}
 label[for=color03] {background: navy;}
