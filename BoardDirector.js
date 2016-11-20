@@ -11,8 +11,9 @@ function isValidPassword(candidatePassword) {
 module.exports = {
     // constructor function
     // a BoardDirector encapsulates the back-end code and state of a board with the
-    // given boardId and the given boardNameSpace (a socket.io namespace)
-    BoardDirector: function(boardId, boardNameSpace) {
+    // given boardId and the given boardNameSpace (a socket.io namespace);
+    // also need the argument newBoardFunc for a function that creates a new board
+    BoardDirector: function(boardId, boardNameSpace, newBoardFunc) {
         this.boardId = boardId;
         this.boardNameSpace = boardNameSpace;
 
@@ -151,6 +152,11 @@ module.exports = {
                 });
             }
 
+
+            socket.on('new board', function() {
+                var retId = newBoardFunc();
+                socket.emit('board created', retId);
+            });
 
             socket.on("draw point", function(data_point, counter){
                 boardDirector.drawingData[clientId].push(data_point);
