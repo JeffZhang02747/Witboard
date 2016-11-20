@@ -1,21 +1,32 @@
 var BoardDirector = require('./BoardDirector.js');
 
+// following function is from http://stackoverflow.com/questions/105034/create-guid-uuid-in-javascript
+function guid() {
+    function s4() {
+        return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
+    }
+  
+    return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
+}
+
 
 module.exports = {
 
     BoardCollection: function( io ) {
 
         boardDirectorMap = new Map();
-        var nextBoardId = 1;
 
 
         var newBoard = function() {
-            var newBoardId = nextBoardId;
-            nextBoardId++;
+            var newBoardId = guid();
+            while (newBoardId in boardDirectorMap) {
+                newBoardId = guid();
+            }
+            
             var boardNameSpace = io.of('/' + newBoardId);
             boardDirectorMap[newBoardId] = new BoardDirector.BoardDirector(newBoardId, boardNameSpace);
             return newBoardId;
-        }
+        };
 
 
         io.on('connection', function(socket){

@@ -56,7 +56,7 @@ $(document).ready(function(){
 
   // returns the current board id if it exists, returns null otherwise
   function getCurrBoardId() {
-    var re = new RegExp("/([0-9]+)$");
+    var re = new RegExp("/([0-9a-zA-Z\-]+)$");
     var regexMatches = re.exec(window.location.href);
     if (!regexMatches || !(regexMatches[1])) {
       return null; 
