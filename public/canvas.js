@@ -311,37 +311,45 @@ $(document).ready(function(){
   function rerenderComments() {
     console.log( comments );
 
-
     $('.info').remove();
-    // for(var i=0; i<comments.length; i++){
-      
-    //   // TODO does this work?
-    //   // document.body.removeChild(userComments);
-    // }
 
     function addTextArea(commentId, comment) {
       if (!comment) {
         return;
       }
 
-      var textOnCanvas = document.getElementById('canvas');
-      var userComments = document.createElement('textarea');
-      userComments.className = 'info';
-      userComments.name = 'textarea' + textareaindex;
-      userComments.id = commentId;
+      var division = document.createElement('div'); 
+      division.className = 'info';
+      division.id = commentId;
 
-      userComments.addEventListener('mousedown', function mouseDownOnTextarea(e) {
+      var label = document.createElement('label');
+      label.className = 'textareaLabel';
+      if (comment.authorClientId == gClientId){
+        label.innerHTML = "You";
+        label.style.color = 'blue';
+      }
+      else{
+        var userName = "User#" + String(comment.authorClientId+1);
+        label.innerHTML = userName;
+        label.style.color = 'red';
+      }
+      
+      var userComments = document.createElement('textarea');
+      userComments.name = 'textarea' + textareaindex;
+      userComments.className = 'userComment';
+
+      division.addEventListener('mousedown', function mouseDownOnTextarea(e) {
           var x = this.offsetLeft - e.clientX,
               y = this.offsetTop - e.clientY;
           function drag(e) {
               this.style.left = e.clientX + x + 'px';
               this.style.top = e.clientY + y + 'px';
-              var values = {};
-              values.x = e.clientX + x;
-              values.y = e.clientY + y;
+              comment.value = this.children[1].value;
+              comment.xPos = parseInt(division.style.left);
+              comment.yPos = parseInt(division.style.top);
               // debugger;
               // console.log('is this getting called? ', this.id);
-              socket.emit("edit comment", this.id, this.value, parseInt(this.style.left), parseInt(this.style.top) );
+              socket.emit("edit comment", this.id, this.children[1].value, parseInt(this.style.left), parseInt(this.style.top) );
           }
           function stopDrag() {
               this.removeEventListener('mousemove', drag);
@@ -350,8 +358,8 @@ $(document).ready(function(){
           this.addEventListener(mouseMove, drag);
           this.addEventListener(mouseUp, stopDrag);
       });
-      userComments.addEventListener('dblclick', function remove(){
-        socket.emit('delete comment', userComments.id);
+      division.addEventListener('dblclick', function remove(){
+        socket.emit('delete comment', division.id);
         this.remove();
       });
 
@@ -361,28 +369,34 @@ $(document).ready(function(){
         console.log("blur this");
         if (userComments.value != "") {
           comment.message = userComments.value;
+          comment.xPos = parseInt(division.style.left);
+          comment.yPos = parseInt(division.style.top);
           if (commentId == "tempId" && !commited) {
             commited = true;
 
-            socket.emit("add comment", userComments.value, parseInt(userComments.style.left), parseInt(userComments.style.top) );
+            console.log(division.style.left + ' and ' + division.style.top );
+            socket.emit("add comment", userComments.value, parseInt(division.style.left), parseInt(division.style.top) );
             socket.on("id for new comment", function(commentId) {
-               userComments.id = commentId;
+               division.id = commentId;
                comments[commentId] = comment;
                newTempComment = undefined;
             });
           } else {
-              socket.emit("edit comment", this.id, userComments.value, parseInt(userComments.style.left), parseInt(
-              userComments.style.top));
+              console.log(division.style.left + ' and ' + division.style.top );
+              socket.emit("edit comment", this.id, userComments.value, parseInt(division.style.left), parseInt(
+              division.style.top));
           }
         }
       })
 
       userComments.value = comment.message;
-      userComments.style.top = comment.yPos + 'px';
-      userComments.style.left = comment.xPos + 'px';
-      console.log(userComments.id);
-      console.log('I WANT to render this message:' + userComments.value);
-      document.body.appendChild(userComments);
+      division.style.top = comment.yPos + 'px';
+      division.style.left = comment.xPos + 'px';
+      console.log(division.id);
+      console.log('I WANT to render this message:' + userComments.value + '   x: ' + comment.xPos + '   y: ' + comment.yPos);
+      document.body.appendChild(division);
+      document.getElementById(commentId).appendChild(label);
+      document.getElementById(commentId).appendChild(userComments);
     }
 
     // $.each(comments, addTextArea);

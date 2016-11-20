@@ -69,11 +69,13 @@ module.exports = {
                 if (typeof(comment) === 'undefined') {
                     socket.emit('invalid edit/delete comment', 
                                 'Provided comment id does not point to an existing comment.')
+                    console.log("Provided comment id does not point to an existing comment.");
                     return undefined;
                 }
                 if (comment.authorClientId !== clientId) {
                     socket.emit('invalid edit/delete comment', 
                                 "Comment to edit/delete isn't authored by you! Cannot edit comments by others!")
+                    console.log("Comment to edit/delete isn't authored by you! Cannot edit comments by others!");
                     return undefined;
                 }
 
