@@ -19,7 +19,8 @@ module.exports = {
 
         var newBoard = function() {
             var newBoardId = guid();
-            while (newBoardId in boardDirectorMap) {
+            while (newBoardId in boardDirectorMap 
+                    || !(newBoardId >= '0' && newBoardId <= '9')) { // somehow id's that start with a letter breaks stuff..
                 newBoardId = guid();
             }
             
