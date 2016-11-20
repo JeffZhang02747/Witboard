@@ -130,9 +130,9 @@ $(document).ready(function(){
       document.getElementById('hideTextArea').value = "Hide comments";
     }
 
-    var textareaList = document.getElementsByTagName("textarea");
-    for(var i=0; i<textareaList.length; i++){
-        textareaList[i].hidden = textareahidden;
+    var commentsList = document.getElementsByClassName("info");
+    for( var index in commentsList ){
+        commentsList[index].hidden=textareahidden;
     }
   });
 
@@ -311,6 +311,9 @@ $(document).ready(function(){
   }
 
   function rerenderComments() {
+
+    if(textareahidden){ return; }
+
     console.log( comments );
 
     $('.info').remove();
