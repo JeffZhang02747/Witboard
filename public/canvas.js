@@ -326,8 +326,8 @@ $(document).ready(function(){
       //     y = values.y - textOnCanvas.offsetTop;
 
       userComments.value = comment.message;
-      userComments.style.top = comment.xPos + 'px';
-      userComments.style.left = comment.yPos + 'px';
+      userComments.style.top = comment.yPos + 'px';
+      userComments.style.left = comment.xPos + 'px';
     }
 
     $.each(comments, addTextArea);
