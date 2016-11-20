@@ -165,7 +165,14 @@ module.exports = {
             });
 
             socket.on('disconnect', function() {
-                socket.broadcast.emit('user left', clientId);
+                var idx = boardDirector.activeClientIds.indexOf(clientId);
+                if (idx >= 0) {
+                    boardDirector.activeClientIds.splice(idx, 1);
+                } else {
+                    throw "client with clientId: " + clientId + " disconnected but was never added to activeClientIds!?";
+                }
+
+                boardDirector.notifyAboutActiveClients();
             });
 
             // the initialize event is only sent when the user is granted access to the board
