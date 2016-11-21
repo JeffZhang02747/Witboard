@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
   <script src='./jquery-3.1.1.min.js' type='text/javascript'></script>
   <script src='https://cdn.socket.io/socket.io-1.2.0.js'></script>
   <script type='text/javascript' src='./canvas.js'></script>
@@ -11,9 +12,8 @@
   <script type='text/javascript' src='./png.js'></script>
   <script type='text/javascript' src='./zlib.js'></script>
   <link rel="stylesheet" href="css/style.css">
-
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
   <head>
     <title>Real Time Witboard</title>
     <h2 id="witboard-title">Witboard Canvas</h2>
@@ -21,15 +21,16 @@
 
   <body>
   <a class="popFade label label-default" data-toggle="popover" data-content="Some content inside the popover"></a>
-    <button id="newBoardButton">New Board</button>
+    <button id="newBoardButton" class="btn btn-primary active">New Board</button>
       &nbsp
-    <button id="cloneButton">Clone New Board</button>
-    
-      <br>
-      <button id="downloadButton">Download PDF</button>
+    <button id="cloneButton" class="btn btn-primary active">Clone New Board</button>
+      &nbsp
+    <button id="downloadButton" class="btn btn-primary active">Download PDF</button>
+
+
       <div id="passwordArea" style="display: none;">
         <input id="password-area"></input>
-        <button id="setPassword">Set Password</button>
+        <button id="setPassword" class="btn btn-primary active">Set Password</button>
       </div>
       <br>
     <section class = "mainSection">
@@ -43,11 +44,11 @@
         
         &nbsp
 
-        <button type="radio" id="highlightButton">Highlight</button>
+        <button type="radio" id="highlightButton" class="btn btn-primary active">Highlight</button>
 
-        <button type="radio" id="addCommentButton">Add Comment</button>
+        <button type="radio" id="addCommentButton" class="btn btn-primary active">Add Comment</button>
 
-        <input type="button" id="hideTextArea" value="Hide Comments">
+        <input type="button" id="hideTextArea" value="Hide Comments" class="btn btn-primary active">
 
         <a class="avatar-section">
         </a>

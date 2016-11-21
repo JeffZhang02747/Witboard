@@ -80,7 +80,7 @@ $(document).ready(function(){
       $('#addCommentButton').css('color', 'red');
       $("#addCommentButton").css("pointer-events", "auto");
     } else if(!highlightMode) {
-      $('#addCommentButton').css('color', 'black');
+      $('#addCommentButton').css('color', 'white');
       $("#addCommentButton").css("pointer-events", "auto");
     } else {
       $('#addCommentButton').css('color', 'grey');
@@ -92,7 +92,7 @@ $(document).ready(function(){
       $('#highlightButton').css('color', 'red');
       $("#highlightButton").css("pointer-events", "auto");
     } else if(!addCommentMode) {
-      $('#highlightButton').css('color', 'black');
+      $('#highlightButton').css('color', 'white');
       $("#highlightButton").css("pointer-events", "auto");
     } else {
       $('#highlightButton').css('color', 'grey');
@@ -539,6 +539,10 @@ $(document).ready(function(){
 
   socket.on('password change successful',function() {
     $("#witboard-title").after('<div class="alert alert-success alert-dismissible"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>Password Changed!</div>');
+  });
+
+  socket.on('invalid-password', function(msg){
+    $("#witboard-title").after('<div class="alert alert-danger alert-dismissible"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>' + msg + '</div>');
   });
 
 }); // document.ready
