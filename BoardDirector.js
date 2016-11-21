@@ -96,7 +96,6 @@ module.exports = {
             // returns the comment to edit/delete if valid, or undefined otherwise.
             // if invalid, also notifies the client
             var checkIfValidEdit = function (commentId) {
-
                 var comment = boardDirector.comments[commentId];
                 if (comment == null) {
                     socket.emit('invalid edit/delete comment', 
@@ -124,6 +123,7 @@ module.exports = {
 
             socket.on('add comment', function(message, xPos, yPos) {
                 // commentId is the same as the index to boardDirector.comments
+
                 var commentId = boardDirector.comments.length;
                 var newComment = new Comment.Comment(clientId, message, xPos, yPos);
                 boardDirector.comments.push(newComment);
@@ -144,6 +144,7 @@ module.exports = {
                 comment.yPos = yPos;
 
                 socket.broadcast.emit('updated comment', commentId, comment);
+                
                 boardDirector.updateClientActivity(clientId);
                 boardDirector.saveToDB();
             });

@@ -333,6 +333,7 @@ $(document).ready(function(){
 
       var division = document.createElement('div'); 
       division.className = 'info';
+      division.style = "width:150px; height:150px;";
       division.id = commentId;
 
       var label = document.createElement('label');
@@ -350,6 +351,7 @@ $(document).ready(function(){
       var userComments = document.createElement('textarea');
       userComments.name = 'textarea' + textareaindex;
       userComments.className = 'userComment';
+      userComments.id = "commentId" + commentId;
 
       division.addEventListener('mousedown', function mouseDownOnTextarea(e) {
           if (comment.authorClientId != gClientId) {return};
@@ -378,35 +380,6 @@ $(document).ready(function(){
         socket.emit('delete comment', division.id);
       });
 
-      var commited = false;
-      userComments.addEventListener('blur', function() {
-        if (comment.authorClientId != gClientId) {
-          userComments.value = comment.message;
-          return};
-        if (userComments.value != "") {
-          comment.message = userComments.value;
-          comment.xPos = parseInt(division.style.left);
-          comment.yPos = parseInt(division.style.top);
-          if (commentId == "tempId" && !commited) {
-            commited = true;
-
-            console.log(division.style.left + ' and ' + division.style.top );
-            socket.emit("add comment", userComments.value, parseInt(division.style.left), parseInt(division.style.top) );
-            socket.on("id for new comment", function(commentId) {
-               division.id = commentId;
-               comments[commentId] = comment;
-               newTempComment = undefined;
-            });
-          } else {
-              console.log(division.style.left + ' and ' + division.style.top );
-              socket.emit("edit comment", this.id, userComments.value, parseInt(division.style.left), parseInt(
-              division.style.top));
-          }
-        }
-      })
-
-
-
 
       userComments.value = comment.message;
       division.style.top = comment.yPos + 'px';
@@ -414,6 +387,37 @@ $(document).ready(function(){
       document.body.appendChild(division);
       document.getElementById(commentId).appendChild(label);
       document.getElementById(commentId).appendChild(userComments);
+
+      var commited = false;
+      $('#' + "commentId" + commentId).emojioneArea({
+        pickerPosition: "left",
+        tonesStyle: "bullet",
+        events: {
+          blur: function (editor, event) {
+            if (comment.authorClientId != gClientId) {
+              this.setText(comment.message);
+              return};
+            if (userComments.value != "") {
+              comment.message = userComments.value;
+              comment.xPos = parseInt(division.style.left);
+              comment.yPos = parseInt(division.style.top);
+              if (commentId == "tempId" && !commited) {
+                commited = true;
+
+                socket.emit("add comment", userComments.value, parseInt(division.style.left), parseInt(division.style.top) );
+                socket.on("id for new comment", function(commentId) {
+                   division.id = commentId;
+                   comments[commentId] = comment;
+                   newTempComment = undefined;
+                });
+              } else {
+                  socket.emit("edit comment", division.id, userComments.value, parseInt(division.style.left), parseInt(
+                  division.style.top));
+              }
+            }
+          }
+        }
+      });
     }
 
     // $.each(comments, addTextArea);
@@ -439,10 +443,21 @@ $(document).ready(function(){
   });
 
   socket.on("updated comment", function(commentId, comment) {
+    var oldMsg = comments[commentId].message;
+    var newMsg = comment.message;
     comments[commentId] = comment;
-    console.log("comment update received");
-    console.log(comment);
-    rerenderComments();
+
+    if (oldMsg != newMsg) {
+      console.log("rerendedd");
+      rerenderComments();
+    } else {
+      var xPos = comment.xPos;
+      var yPos = comment.yPos;
+      if ( document.getElementById(commentId) != null) {
+        document.getElementById(commentId).style.left = xPos + 'px';
+        document.getElementById(commentId).style.top = yPos + 'px';
+      }
+    }
   });
 
 

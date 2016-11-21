@@ -17,6 +17,8 @@
   <head>
     <title>Real Time Witboard</title>
     <h2 id="witboard-title">Witboard Canvas</h2>
+    <link rel="stylesheet" type="text/css" href="https://cdn.rawgit.com/mervick/emojionearea/master/dist/emojionearea.min.css">
+    <script type="text/javascript" src="https://cdn.rawgit.com/mervick/emojionearea/master/dist/emojionearea.min.js"></script>
   </head>
 
   <body>
@@ -26,7 +28,6 @@
     <button id="cloneButton" class="btn btn-primary active">Clone New Board</button>
       &nbsp
     <button id="downloadButton" class="btn btn-primary active">Download PDF</button>
-
 
       <div id="passwordArea" style="display: none;">
         <input id="password-area"></input>
@@ -69,6 +70,20 @@
     </div>
   </div>
 </div>
+
+  <script type="text/javascript">
+    $(document).ready(function() {
+      $("#emojionearea1").emojioneArea({
+        pickerPosition: "left",
+        tonesStyle: "bullet"
+      });
+
+      $(".userComment").emojioneArea({
+        pickerPosition: "left",
+        tonesStyle: "bullet"
+      });
+    });
+  </script>
 
   </body>
 
