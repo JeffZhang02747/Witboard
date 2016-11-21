@@ -55,9 +55,9 @@ $(document).ready(function(){
     mouseUp = 'touchend';
     mouseLeave = 'touchend';
     click = 'touchend';
-    $('html, body').on('touchstart touchmove', function(e){ 
-         e.preventDefault(); 
-    });
+    // $('html, body').on('touchstart touchmove', function(e){ 
+    //      e.preventDefault(); 
+    // });
   }
 
   // returns the current board id if it exists, returns null otherwise
