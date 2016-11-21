@@ -1,11 +1,9 @@
 var Comment = require('./Comment.js');
-
+var db = require('./db.js');
 
 function isValidPassword(candidatePassword) {
     return candidatePassword.length >= 8;
 }
-
-
 
 
 module.exports = {
@@ -20,7 +18,7 @@ module.exports = {
         this.nextClientId = 0;
         this.firstId = 0;
 
-        this.password = undefined;      // a password value of null or undefined
+        this.password = null;      // a password value of null or undefined
                                         // means the board is not password-protected
 
         // state about the current drawing
@@ -33,7 +31,44 @@ module.exports = {
         // ordered by activity (from most recently active to least recently active)
         this.activeClientIds = new Array();
 
+        this.timeOutSave = null;
+
         ///////////////////// method definitions start ///////////////////
+        var boardDirector = this;
+
+        this.saveToDB = function() {
+            saveObj = {}
+            saveObj.boardId = boardDirector.boardId;
+            saveObj.nextClientId = boardDirector.nextClientId;
+            saveObj.firstId = boardDirector.firstId;
+            saveObj.password = boardDirector.password;
+            saveObj.drawingData = boardDirector.drawingData;
+            saveObj.comments = boardDirector.comments;
+            saveObj.activeClientIds = boardDirector.activeClientIds;
+            db.saveBoard(saveObj.boardId, saveObj);
+        };
+
+        this.loadFromDB = function(obj) {
+            if (obj.nextClientId != undefined) {
+                boardDirector.nextClientId = obj.nextClientId;
+            }
+            if (obj.firstId != undefined) {
+                boardDirector.firstId = obj.firstId;
+            }
+            if (obj.password != undefined) {
+                boardDirector.password = obj.password;
+            }
+            if (obj.drawingData != undefined) {
+                boardDirector.drawingData = obj.drawingData;
+            }
+            if (obj.comments != undefined) {
+                boardDirector.comments = obj.comments;
+            }
+            // if (obj.activeClientIds != undefined) {
+            //     boardDirector.activeClientIds = obj.activeClientIds;
+            // }
+        };
+
 
         this.notifyAboutActiveClients = function() {
             this.boardNameSpace.emit('active user list updated', this.activeClientIds);
@@ -50,7 +85,7 @@ module.exports = {
                     this.activeClientIds.splice(idx, 1);
                 }
                 this.activeClientIds.unshift(clientId);
-
+                boardDirector.saveToDB();
                 this.notifyAboutActiveClients();
             }
         };
@@ -61,9 +96,6 @@ module.exports = {
             // returns the comment to edit/delete if valid, or undefined otherwise.
             // if invalid, also notifies the client
             var checkIfValidEdit = function (commentId) {
-                console.log("checkif valid");
-                console.log(commentId);
-
 
                 var comment = boardDirector.comments[commentId];
                 if (typeof(comment) === 'undefined') {
@@ -84,7 +116,6 @@ module.exports = {
 
 
             socket.on('add comment', function(message, xPos, yPos) {
-                console.log("get new comment");
                 // commentId is the same as the index to boardDirector.comments
                 var commentId = boardDirector.comments.length;
                 var newComment = new Comment.Comment(clientId, message, xPos, yPos);
@@ -93,14 +124,13 @@ module.exports = {
                 socket.emit('id for new comment', commentId);
                 socket.broadcast.emit('new comment', commentId, newComment);
                 boardDirector.updateClientActivity(clientId);
+                boardDirector.saveToDB();
             });
 
             socket.on('edit comment', function(commentId, message, xPos, yPos) {
-                console.log("get edit comment");
-
                 var comment = checkIfValidEdit(commentId);
 
-                if (!comment) { console.log("not a comment"); return; }
+                if (!comment) { return; }
 
                 comment.message = message;
                 comment.xPos = xPos;
@@ -108,23 +138,25 @@ module.exports = {
 
                 socket.broadcast.emit('updated comment', commentId, comment);
                 boardDirector.updateClientActivity(clientId);
+                boardDirector.saveToDB();
             });
 
             socket.on('delete comment', function(commentId) {
                 var comment = checkIfValidEdit(commentId);
                 if (!comment) { return; }
 
-                boardDirector.comments[commentId] = undefined;
+                boardDirector.comments[commentId] = null;
 
                 socket.broadcast.emit('deleted comment', commentId);
                 boardDirector.updateClientActivity(clientId);
+                boardDirector.saveToDB();
             });
         }
 
         // verify the user connected through socket;
         // If verification is successful, then access is granted to the user
         this.verifyUser = function(socket) {
-            if (typeof(this.password) === 'undefined') {
+            if (this.password === null) {
                 this.grantAccessToUser(socket);
                 return;
             }
@@ -171,6 +203,15 @@ module.exports = {
 
             socket.on("draw point", function(data_point, counter){
                 boardDirector.drawingData[clientId].push(data_point);
+
+                if (boardDirector.timeOutSave != null) {
+                    clearTimeout(boardDirector.timeOutSave);                // stop last timer 
+                }
+                boardDirector.timeOutSave = setTimeout( function() {
+                    boardDirector.saveToDB();
+                }, 5000);
+
+
                 socket.broadcast.emit('draw point', data_point, counter);
                 boardDirector.updateClientActivity(clientId);
             });
@@ -185,6 +226,7 @@ module.exports = {
                 var idx = boardDirector.activeClientIds.indexOf(clientId);
                 if (idx >= 0) {
                     boardDirector.activeClientIds.splice(idx, 1);
+
                 } else {
                     throw "client with clientId: " + clientId + " disconnected but was never added to activeClientIds!?";
                 }
@@ -204,15 +246,8 @@ module.exports = {
             this.updateClientActivity(clientId);
         };
 
-        // persists current state to the database
-        this.saveToDB = function() {}; // TODO implement!
-        // populate current state with data from the database
-        this.loadFromDB = function() {}; // TODO implement!
-
-
 
         //////////////////// method end definitions //////////////////////
-
         var boardDirector = this;
         // initialization
         this.boardNameSpace.on('connection', function(socket){
