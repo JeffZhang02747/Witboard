@@ -16,14 +16,10 @@ $(document).ready(function(){
   var comments = new Array();
   // array of textarea objects;
   // this array is kept in sync with comments
-  var commentTextAreas = new Array();
   var addCommentMode = false;
   var textarea = null;
   var textareaindex = 0;  // TODO delete this var? don't think we're using it anymore?
   var textareahidden = false;
-  var timeout = undefined;
-  var date = new Date();
-  var passcode = date.getTime();
   var counter = 0;
   var data_point = {};
   var gClientId = -1;
@@ -356,6 +352,8 @@ $(document).ready(function(){
       userComments.className = 'userComment';
 
       division.addEventListener('mousedown', function mouseDownOnTextarea(e) {
+          if (comment.authorClientId != gClientId) {return};
+
           var x = this.offsetLeft - e.clientX,
               y = this.offsetTop - e.clientY;
           function drag(e) {
@@ -364,8 +362,6 @@ $(document).ready(function(){
               comment.value = this.children[1].value;
               comment.xPos = parseInt(division.style.left);
               comment.yPos = parseInt(division.style.top);
-              // debugger;
-              // console.log('is this getting called? ', this.id);
               socket.emit("edit comment", this.id, this.children[1].value, parseInt(this.style.left), parseInt(this.style.top) );
           }
           function stopDrag() {
@@ -376,6 +372,7 @@ $(document).ready(function(){
           this.addEventListener(mouseUp, stopDrag);
       });
       division.addEventListener('dblclick', function remove(){
+        if (comment.authorClientId != gClientId) {return};
         comments[commentId] = undefined;
         this.remove();
         socket.emit('delete comment', division.id);
@@ -383,8 +380,9 @@ $(document).ready(function(){
 
       var commited = false;
       userComments.addEventListener('blur', function() {
-        console.log( userComments.value );
-        console.log("blur this");
+        if (comment.authorClientId != gClientId) {
+          userComments.value = comment.message;
+          return};
         if (userComments.value != "") {
           comment.message = userComments.value;
           comment.xPos = parseInt(division.style.left);
@@ -407,11 +405,12 @@ $(document).ready(function(){
         }
       })
 
+
+
+
       userComments.value = comment.message;
       division.style.top = comment.yPos + 'px';
       division.style.left = comment.xPos + 'px';
-      console.log(division.id);
-      console.log('I WANT to render this message:' + userComments.value + '   x: ' + comment.xPos + '   y: ' + comment.yPos);
       document.body.appendChild(division);
       document.getElementById(commentId).appendChild(label);
       document.getElementById(commentId).appendChild(userComments);

@@ -98,6 +98,13 @@ module.exports = {
             var checkIfValidEdit = function (commentId) {
 
                 var comment = boardDirector.comments[commentId];
+                if (comment == null) {
+                    socket.emit('invalid edit/delete comment', 
+                                'Provided comment id does not point to an existing comment.')
+                    console.log("Provided comment id does not point to an existing comment.");
+                    return undefined;
+                }
+
                 if (typeof(comment) === 'undefined') {
                     socket.emit('invalid edit/delete comment', 
                                 'Provided comment id does not point to an existing comment.')
