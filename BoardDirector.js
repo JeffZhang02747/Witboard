@@ -1,5 +1,7 @@
 var Comment = require('./Comment.js');
 var db = require('./db.js');
+var Stroke = require('./Stroke.js');
+
 
 function isValidPassword(candidatePassword) {
     return candidatePassword.length >= 8;
@@ -21,10 +23,17 @@ module.exports = {
         this.password = null;      // a password value of null or undefined
                                         // means the board is not password-protected
 
+        // TODO delete?
         // state about the current drawing
         // an object used as a map associating client ids to arrays of data_point
         // fs.
-        this.drawingData = {};
+        // this.drawingData = {};
+
+        // array of StrokeIds ordered by time received (when the stroke started);
+        this.orderedStrokeIds = new Array();
+        // map of client id to (an array of StrokeData drawn by client of client id);
+        // the index to the inner array is the same as the authorStrokeId
+        this.strokeMapMap = new Map();
         // comments data (TODO which datastructure?)
         this.comments = new Array();
         // array of client ids for the still active (not disconnected) clients,
@@ -188,7 +197,8 @@ module.exports = {
             var clientId = this.nextClientId;
             this.nextClientId++;
 
-            this.drawingData[clientId] = new Array();
+            // this.drawingData[clientId] = new Array();
+            this.strokeMapMap.set(clientId, new Array());
 
             var boardDirector = this;
             var allowChangePassword = clientId == boardDirector.firstId;
@@ -209,19 +219,46 @@ module.exports = {
                 socket.emit('board created', retId);
             });
 
-            socket.on("draw point", function(data_point, counter){
-                boardDirector.drawingData[clientId].push(data_point);
+            var clientsStrokeArray = this.strokeMapMap.get(clientId);
+            // this function is responsible for keeping order in orderedStrokeIds
+            var addStrokeIfNotExist = function(authorStrokeId) {
+                if (authorStrokeId >= clientsStrokeArray.length) {
+                    if (authorStrokeId != clientsStrokeArray.length) {
+                        throw 'authorStrokeId is larger than clientsStrokeArray.length!'
+                            + ' (authorStrokeId: ' + authorStrokeId + ', clientsStrokeArray.length: ' 
+                            + clientsStrokeArray.length + ')';
+                    }
 
+                    clientsStrokeArray.push(new Stroke());
+                    boardDirector.orderedStrokeIds.push(Stroke.StrokeId(clientId, authorStrokeId));
+                    boardDirector.boardNameSpace.emit('ordered stroke array updated', boardDirector.orderedStrokeIds);
+                }
+            }
+
+            // send this event when starting a stroke to set its properties
+            socket.on('set stroke properties', function(authorStrokeId, colorId, isEraserStroke) {
+                addStrokeIfNotExist();
+                clientsStrokeArray[authorStrokeId].colorId = colorId;
+                clientsStrokeArray[authorStrokeId].isEraserStroke = isEraserStroke;
+
+                socket.broadcast.emit('stroke properties updated', clientId, authorStrokeId,
+                        colorId, isEraserStroke);
+            });
+
+            socket.on("draw point", function(authorStrokeId, data_point){
+                addStrokeIfNotExist();
+                clientsStrokeArray[authorStrokeId].dataPoints.push(data_point);
+
+                socket.broadcast.emit('draw point', authorStrokeId, authorStrokeId, data_point);
+                boardDirector.updateClientActivity(clientId);
+
+                // automatic DB saving
                 if (boardDirector.timeOutSave != null) {
                     clearTimeout(boardDirector.timeOutSave);                // stop last timer 
                 }
                 boardDirector.timeOutSave = setTimeout( function() {
                     boardDirector.saveToDB();
                 }, 5000);
-
-
-                socket.broadcast.emit('draw point', data_point, counter);
-                boardDirector.updateClientActivity(clientId);
             });
 
             this.setUpCommentHandlers(clientId, socket);
