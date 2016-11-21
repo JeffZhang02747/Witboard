@@ -54,14 +54,13 @@ module.exports = {
         });
 
         // clone a new board given drawingData
-        this.cloneBoard = function(drawingData, nextId) {
+        this.cloneBoard = function(orderedStrokeIds, strokeMap, nextId) {
             var retId = newBoard();
-            var cloneDrawing = JSON.parse(JSON.stringify(drawingData));
-            boardDirectorMap[retId].drawingData = cloneDrawing;
+            boardDirectorMap[retId].orderedStrokeIds = orderedStrokeIds;
+            boardDirectorMap[retId].strokeMap = strokeMap;
             boardDirectorMap[retId].nextClientId = nextId;
             boardDirectorMap[retId].firstId = nextId;
             boardDirectorMap[retId].saveToDB();
-            var cloneDrawing = JSON.parse(JSON.stringify(drawingData));
             return retId;
         }
     }
