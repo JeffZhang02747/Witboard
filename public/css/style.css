@@ -3,10 +3,10 @@ html {
 	height: 100%;
 }
 body{
-	background: yellowgreen;
+	font-family: Palatino Linotype;
+    background: linear-gradient(to right, yellowgreen , white);
 	overflow-x: hidden;
 	margin: 0;
-
 }
 
 textarea{
@@ -14,6 +14,10 @@ textarea{
 	resize: none;
 	font-size: 5em;
 	outline: none;
+}
+
+h2{
+	font-weight: bold;
 }
 
 textarea.userComment{  
@@ -32,14 +36,15 @@ canvas.canvasSection{
 section.mainSection {
     border-style: solid;
     border-width: 5px;
-    background-color: #1a5f96;
+    background: linear-gradient(to right, #1a5f96 , white);
+    /*background-color: #1a5f96;*/
 }
 
 label.client{
-	margin: 0px 10px;
+	margin: 5px 10px;
     -webkit-box-flex: 1;
     display: block;
-    border:2px solid black;
+    border:2px solid grey;
     -webkit-appearance: none;
     -webkit-border-radius: 5px;
     background-color: transparent;
@@ -68,6 +73,8 @@ input[type=radio]:checked + label::after {
 }
 
 label {
+	max-width: initial;
+	margin-bottom: 0px;
 	display: inline-block; 
 	width: 48px; height: 48px; 
 	position: relative;
@@ -85,11 +92,27 @@ button.color{
     border-radius: 50px;
     border: 0px;
     background-color: transparent;
+    box-shadow: 5px 5px 2px #888888;
+
+}
+
+.btn.btn-primary{
+	display: inline-block;
+    float: none;
+    vertical-align: top;
+    margin: 10px 0px;
 }
 
 a.popFade{
 	position: absolute;
 	display: none;
+}
+
+input#password-area{
+	float: none;
+    display: inline-block;
+    vertical-align: bottom;
+    margin: 15px 0px;
 }
 
 label[for=color01] {background: gold;}
