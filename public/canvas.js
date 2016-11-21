@@ -342,7 +342,7 @@ $(document).ready(function(){
         label.style.color = 'blue';
       }
       else{
-        var userName = "User#" + String(comment.authorClientId+1);
+        var userName = "User#" + String(comment.authorClientId);
         label.innerHTML = userName;
         label.style.color = 'red';
       }
