@@ -23,6 +23,10 @@ h2{
 textarea.userComment{  
     background: transparent; 
     vertical-align: bottom;
+    color: black;
+    resize: none;
+    font-size: 15px;
+    outline: none;
 }
 
 .info {
