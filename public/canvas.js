@@ -42,10 +42,6 @@ $(document).ready(function(){
   // drawing model (all the data you need to render the lines)
   var orderedStrokeIds = new Array(); // see BoardDirector's member var
   var strokeMap = {}; // see BoardDirector's member var
-  // TODO delete
-  // both data structures below are maps of clientId to (array of authorStrokeId to "some object")
-  // this.strokeProperties = new Map(); // "some object" contains properties about the stroke
-  // this.strokeDataPoints = new Map();
 
   // Event types
   var mouseDown = 'mousedown',
@@ -114,21 +110,6 @@ $(document).ready(function(){
     return dataPoint;
   }
 
-  // TODO delete
-  // function addClick(clientId, x, y, color, dragging)
-  // {
-  //   if(!points.hasOwnProperty(clientId)){
-  //     points[clientId] = {};
-  //     points[clientId].clickX = new Array();
-  //     points[clientId].clickY = new Array();
-  //     points[clientId].clickDrag = new Array();
-  //     points[clientId].color = new Array();
-  //   }
-  //   points[clientId].clickX.push(x);
-  //   points[clientId].clickY.push(y);
-  //   points[clientId].clickDrag.push(dragging);
-  //   points[clientId].color.push(color);
-  // }
 
   $('#color01').bind(click, function(e){
     gColor = 0;
@@ -346,30 +327,6 @@ $(document).ready(function(){
       context.stroke();
     }
 
-    // TODO delete
-    // $.each(points, function(clientId, thisPoint) {
-    //   for(var i=0; i < thisPoint.clickX.length; i++) {
-    //     if(showClient == clientId || showClient == -1){
-    //       if(thisPoint.clickDrag[i] && i){
-    //         context.moveTo(thisPoint.clickX[i-1], thisPoint.clickY[i-1]);
-    //         context.lineTo(thisPoint.clickX[i], thisPoint.clickY[i]);
-    //         if (i == thisPoint.clickX.length - 1) {
-    //           context.closePath();
-    //           context.stroke();
-    //         }
-    //        }else{
-    //          if (i !== 0) {
-    //            context.closePath();
-    //            context.stroke();
-    //          }
-    //          context.strokeStyle = gColorList[thisPoint.color[i]];
-    //          context.beginPath();
-    //          context.moveTo(thisPoint.clickX[i]-1, thisPoint.clickY[i]);             
-    //        }
-    //        context.lineTo(thisPoint.clickX[i], thisPoint.clickY[i]);
-    //     }
-    //   }
-    // });
   }
 
   function rerenderComments() {
@@ -559,21 +516,6 @@ $(document).ready(function(){
     redraw();
   })
 
-  // TODO delete
-  // socket.on("draw point", function(data_point, counter){
-  //   var mouseX = data_point.location_x;
-  //   var mouseY = data_point.location_y;
-  //   var otherClientId = data_point.clientId;
-  //   var color = data_point.color;
-
-  //   if(data_point.starting){
-  //     addClick(otherClientId, mouseX, mouseY, color, false);
-  //   }
-  //   else{
-  //     addClick(otherClientId, mouseX, mouseY, color, true);
-  //   }
-  //   redraw();
-  // });
 
   socket.on("initialize", function(clientId, inputOrderedStrokeIds, inputStrokeMap, allowChangePassword, passedComments){
 
@@ -591,14 +533,6 @@ $(document).ready(function(){
     if( allowChangePassword ){
       $('#passwordArea').css('display', 'inline');
     }
-
-    // TODO delete
-    // $.each(r_points, function(other_clientId, other_points) {
-    //   // $('.mainSection').append("<label class='client' style='color: " + client_color + ";' data-value='" + other_clientId + "'>" + other_clientId + "</label>");
-    //   $.each(other_points, function(index, other_point) {
-    //     addClick(other_clientId, other_point.location_x, other_point.location_y, other_point.color, !other_point.starting);
-    //   });
-    // });
 
     redraw();
 
