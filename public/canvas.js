@@ -80,7 +80,7 @@ $(document).ready(function(){
       $('#addCommentButton').css('color', 'red');
       $("#addCommentButton").css("pointer-events", "auto");
     } else if(!highlightMode) {
-      $('#addCommentButton').css('color', 'black');
+      $('#addCommentButton').css('color', 'white');
       $("#addCommentButton").css("pointer-events", "auto");
     } else {
       $('#addCommentButton').css('color', 'grey');
@@ -92,7 +92,7 @@ $(document).ready(function(){
       $('#highlightButton').css('color', 'red');
       $("#highlightButton").css("pointer-events", "auto");
     } else if(!addCommentMode) {
-      $('#highlightButton').css('color', 'black');
+      $('#highlightButton').css('color', 'white');
       $("#highlightButton").css("pointer-events", "auto");
     } else {
       $('#highlightButton').css('color', 'grey');
