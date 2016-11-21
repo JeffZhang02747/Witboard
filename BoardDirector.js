@@ -31,9 +31,9 @@ module.exports = {
 
         // array of StrokeIds ordered by time received (when the stroke started);
         this.orderedStrokeIds = new Array();
-        // map of client id to (an array of StrokeData drawn by client of client id);
+        // object (used like a map) of client id to (an array of StrokeData drawn by client of client id);
         // the index to the inner array is the same as the authorStrokeId
-        this.strokeMapMap = new Map();
+        this.strokeMap = {};
         // comments data (TODO which datastructure?)
         this.comments = new Array();
         // array of client ids for the still active (not disconnected) clients,
@@ -51,7 +51,8 @@ module.exports = {
             saveObj.nextClientId = boardDirector.nextClientId;
             saveObj.firstId = boardDirector.firstId;
             saveObj.password = boardDirector.password;
-            saveObj.drawingData = boardDirector.drawingData;
+            saveObj.orderedStrokeIds = boardDirector.orderedStrokeIds;
+            saveObj.strokeMap = boardDirector.strokeMap;
             saveObj.comments = boardDirector.comments;
             saveObj.activeClientIds = boardDirector.activeClientIds;
             db.saveBoard(saveObj.boardId, saveObj);
@@ -67,8 +68,11 @@ module.exports = {
             if (obj.password != undefined) {
                 boardDirector.password = obj.password;
             }
-            if (obj.drawingData != undefined) {
-                boardDirector.drawingData = obj.drawingData;
+            if (obj.orderedStrokeIds != undefined) {
+                boardDirector.orderedStrokeIds = obj.orderedStrokeIds;
+            }
+            if (obj.strokeMap != undefined) {
+                boardDirector.strokeMap = obj.strokeMap;
             }
             if (obj.comments != undefined) {
                 boardDirector.comments = obj.comments;
@@ -198,7 +202,7 @@ module.exports = {
             this.nextClientId++;
 
             // this.drawingData[clientId] = new Array();
-            this.strokeMapMap.set(clientId, new Array());
+            this.strokeMap[clientId] = new Array();
 
             var boardDirector = this;
             var allowChangePassword = clientId == boardDirector.firstId;
@@ -219,7 +223,7 @@ module.exports = {
                 socket.emit('board created', retId);
             });
 
-            var clientsStrokeArray = this.strokeMapMap.get(clientId);
+            var clientsStrokeArray = this.strokeMap[clientId];
             // this function is responsible for keeping order in orderedStrokeIds
             var addStrokeIfNotExist = function(authorStrokeId) {
                 if (authorStrokeId >= clientsStrokeArray.length) {
@@ -229,15 +233,15 @@ module.exports = {
                             + clientsStrokeArray.length + ')';
                     }
 
-                    clientsStrokeArray.push(new Stroke());
-                    boardDirector.orderedStrokeIds.push(Stroke.StrokeId(clientId, authorStrokeId));
+                    clientsStrokeArray.push(new Stroke.StrokeData());
+                    boardDirector.orderedStrokeIds.push(new Stroke.StrokeId(clientId, authorStrokeId));
                     boardDirector.boardNameSpace.emit('ordered stroke array updated', boardDirector.orderedStrokeIds);
                 }
             }
 
             // send this event when starting a stroke to set its properties
             socket.on('set stroke properties', function(authorStrokeId, colorId, isEraserStroke) {
-                addStrokeIfNotExist();
+                addStrokeIfNotExist(authorStrokeId);
                 clientsStrokeArray[authorStrokeId].colorId = colorId;
                 clientsStrokeArray[authorStrokeId].isEraserStroke = isEraserStroke;
 
@@ -246,7 +250,7 @@ module.exports = {
             });
 
             socket.on("draw point", function(authorStrokeId, data_point){
-                addStrokeIfNotExist();
+                addStrokeIfNotExist(authorStrokeId);
                 clientsStrokeArray[authorStrokeId].dataPoints.push(data_point);
 
                 socket.broadcast.emit('draw point', authorStrokeId, authorStrokeId, data_point);
@@ -280,11 +284,12 @@ module.exports = {
             });
 
             // the initialize event is only sent when the user is granted access to the board
-            socket.emit("initialize", clientId, this.drawingData, allowChangePassword, this.comments);
+            socket.emit("initialize", clientId, this.orderedStrokeIds, this.strokeMap, allowChangePassword, this.comments);
 
 
             socket.on('clone board', function() {
-                var retId = global.collection.cloneBoard(boardDirector.drawingData, boardDirector.nextClientId);
+                var retId = global.collection.cloneBoard(boardDirector.orderedStrokeIds,
+                        boardDirector.strokeMap, boardDirector.nextClientId);
                 socket.emit('board created', retId);
             });
 

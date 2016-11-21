@@ -6,7 +6,14 @@ module.exports = {
     },
 
     // represents a stroke of drawing (from mouse down to mouse up); might be an eraser stroke
-    StrokeData: function(colorId = 0, isEraserStroke = false) {
+    StrokeData: function(colorId, isEraserStroke) {
+        if (typeof(colorId) === 'undefined') {
+            colorId = 0;
+        }
+        if (typeof(isEraserStroke) === 'undefined') {
+            isEraserStroke = false;
+        }
+
         this.colorId = colorId;
         this.isEraserStroke = isEraserStroke; // if true, represents that the stroke is eraser sized
         this.dataPoints = new Array();  // array where each element represents data about a drawn point
