@@ -317,13 +317,19 @@ $(document).ready(function(){
   function redraw(showClient = -1){
     context.clearRect(0, 0, context.canvas.width, context.canvas.height); // Clears the canvas
     
-    for (var i = 0; i < orderedStrokeIds; i++) {
+    for (var i = 0; i < orderedStrokeIds.length; i++) {
       var strokeId = orderedStrokeIds[i];
       if (showClient != -1 && showClient != strokeId.authorClientId) {
         continue;
       }
+
       var strokeData = strokeMap[strokeId.authorClientId][strokeId.authorStrokeId];
       var dataPoints = strokeData.dataPoints;
+
+      // sometimes we are told about the stroke before we get data about it
+      if (dataPoints.length < 1) {
+        continue;
+      }
 
       context.strokeStyle = gColorList[strokeData.colorId];
 
@@ -530,6 +536,7 @@ $(document).ready(function(){
     var clientsStrokeArray = strokeMap[authorClientId];
     if (typeof(clientsStrokeArray) === 'undefined') {
       strokeMap[authorClientId] = new Array();
+      clientsStrokeArray = strokeMap[authorClientId];
     }
 
     if (typeof(clientsStrokeArray[authorStrokeId]) === 'undefined') {
@@ -545,10 +552,10 @@ $(document).ready(function(){
     strokeData.isEraserStroke = isEraserStroke;
   });
 
-  socket.on("draw point", function(authorStrokeId, authorStrokeId, data_point) {
-    addStrokeIfNotExist(clientId, authorStrokeId);
+  socket.on("draw point", function(authorClientId, authorStrokeId, data_point) {
+    addStrokeIfNotExist(authorClientId, authorStrokeId);
 
-    addDrawnPoint(authorStrokeId, authorStrokeId, data_point.location_x, data_point.location_y);
+    addDrawnPoint(authorClientId, authorStrokeId, data_point.location_x, data_point.location_y);
     redraw();
   })
 

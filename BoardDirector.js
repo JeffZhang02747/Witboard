@@ -236,6 +236,10 @@ module.exports = {
                     clientsStrokeArray.push(new Stroke.StrokeData());
                     boardDirector.orderedStrokeIds.push(new Stroke.StrokeId(clientId, authorStrokeId));
                     boardDirector.boardNameSpace.emit('ordered stroke array updated', boardDirector.orderedStrokeIds);
+
+                    // TODO testing
+                    console.log('order updated! orderedStrokeIds:');
+                    console.log(boardDirector.orderedStrokeIds);
                 }
             }
 
@@ -253,7 +257,7 @@ module.exports = {
                 addStrokeIfNotExist(authorStrokeId);
                 clientsStrokeArray[authorStrokeId].dataPoints.push(data_point);
 
-                socket.broadcast.emit('draw point', authorStrokeId, authorStrokeId, data_point);
+                socket.broadcast.emit('draw point', clientId, authorStrokeId, data_point);
                 boardDirector.updateClientActivity(clientId);
 
                 // automatic DB saving
