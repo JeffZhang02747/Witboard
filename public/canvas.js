@@ -308,8 +308,6 @@ $(document).ready(function(){
         continue;
       }
 
-      console.log(strokeId.authorClientId);
-
       if (strokeMap[strokeId.authorClientId] == null) {
         // no idea what's going on but this could be null
         continue;
@@ -348,8 +346,6 @@ $(document).ready(function(){
   function rerenderComments() {
 
     if(textareahidden){ return; }
-
-    console.log( comments );
 
     $('.info').remove();
 
@@ -462,8 +458,6 @@ $(document).ready(function(){
   }
 
   socket.on("new comment", function(commentId, comment){
-    console.log("wow this comment");
-
     comments[commentId] = comment;
     rerenderComments();
 
@@ -475,7 +469,6 @@ $(document).ready(function(){
     comments[commentId] = comment;
 
     if (oldMsg != newMsg) {
-      console.log("rerendedd");
       rerenderComments();
     } else {
       var xPos = comment.xPos;
