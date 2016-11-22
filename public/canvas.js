@@ -26,6 +26,8 @@ $(document).ready(function(){
   var highlightMode = false;
   var ableFade = true;
 
+  var lastShowClient = -1;
+
   context = document.getElementById('canvas').getContext("2d");
   // Default styling
   context.strokeStyle = "#df4b26";
@@ -300,6 +302,8 @@ $(document).ready(function(){
   });
 
   function redraw(showClient = -1){
+    lastShowClient = showClient;
+
     context.clearRect(0, 0, context.canvas.width, context.canvas.height); // Clears the canvas
     
     for (var i = 0; i < orderedStrokeIds.length; i++) {
@@ -572,7 +576,13 @@ $(document).ready(function(){
   });
 
   $(document).on(click, '.client', function(e){
-    redraw($(this).attr('data-value'));
+    var buttonsClientId = $(this).attr('data-value');
+    if (buttonsClientId != lastShowClient) {
+      redraw(buttonsClientId);
+      return;
+    }
+    // clear filtering if filter was already on
+    redraw();
   });
 
   $(document).on(click, 'button#setPassword', function(e){
