@@ -173,6 +173,10 @@ $(document).ready(function(){
     socket.emit('clone board');
   });
 
+  $('#shareButton').bind(click, function(e) {
+    window.prompt("Share this url!", window.location.href);
+  })
+
 
   $('#addCommentButton').bind(click, function(e) {
     addCommentMode = !addCommentMode;
