@@ -199,8 +199,8 @@ $(document).ready(function(){
           newTempComment = {};
           newTempComment.authorClientId = gClientId;
           newTempComment.message = "";
-          newTempComment.xPos = e.clientX;
-          newTempComment.yPos = e.clientY;
+          newTempComment.xPos = e.pageX;
+          newTempComment.yPos = e.pageY;
 
           rerenderComments();
           return;
@@ -364,22 +364,22 @@ $(document).ready(function(){
       userComments.className = 'userComment';
       userComments.id = "commentId" + commentId;
 
-      division.addEventListener('mousedown', function mouseDownOnTextarea(e) {
+      division.addEventListener(mouseDown, function mouseDownOnTextarea(e) {
           if (comment.authorClientId != gClientId) {return};
 
-          var x = this.offsetLeft - e.clientX,
-              y = this.offsetTop - e.clientY;
+          var x = this.offsetLeft - e.pageX,
+              y = this.offsetTop - e.pageY;
           function drag(e) {
-              this.style.left = e.clientX + x + 'px';
-              this.style.top = e.clientY + y + 'px';
+              this.style.left = e.pageX + x + 'px';
+              this.style.top = e.pageY + y + 'px';
               comment.value = this.children[1].value;
               comment.xPos = parseInt(division.style.left);
               comment.yPos = parseInt(division.style.top);
               socket.emit("edit comment", this.id, this.children[1].value, parseInt(this.style.left), parseInt(this.style.top) );
           }
           function stopDrag() {
-              this.removeEventListener('mousemove', drag);
-              this.removeEventListener('mouseup', stopDrag);
+              this.removeEventListener(mouseMove, drag);
+              this.removeEventListener(mouseUp, stopDrag);
           }
           this.addEventListener(mouseMove, drag);
           this.addEventListener(mouseUp, stopDrag);
