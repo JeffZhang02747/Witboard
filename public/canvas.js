@@ -304,8 +304,20 @@ $(document).ready(function(){
         continue;
       }
 
+      console.log(strokeId.authorClientId);
+
+      if (strokeMap[strokeId.authorClientId] == null) {
+        // no idea what's going on but this could be null
+        continue;
+      }
+
       var strokeData = strokeMap[strokeId.authorClientId][strokeId.authorStrokeId];
       var dataPoints = strokeData.dataPoints;
+
+      if (dataPoints == null) {
+        // no idea what's going on but this could be null
+        continue;
+      }
 
       // sometimes we are told about the stroke before we get data about it
       if (dataPoints.length < 1) {
