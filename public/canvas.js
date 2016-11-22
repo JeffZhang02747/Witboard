@@ -57,6 +57,7 @@ $(document).ready(function(){
     mouseUp = 'touchend';
     mouseLeave = 'touchend';
     click = 'touchend';
+    $('body').bind('touchmove', function(e){e.preventDefault()})
     // $('html, body').on('touchstart touchmove', function(e){ 
     //      e.preventDefault(); 
     // });
