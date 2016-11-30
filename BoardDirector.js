@@ -23,18 +23,13 @@ module.exports = {
         this.password = null;      // a password value of null or undefined
                                         // means the board is not password-protected
 
-        // TODO delete?
-        // state about the current drawing
-        // an object used as a map associating client ids to arrays of data_point
-        // fs.
-        // this.drawingData = {};
-
         // array of StrokeIds ordered by time received (when the stroke started);
         this.orderedStrokeIds = new Array();
         // object (used like a map) of client id to (an array of StrokeData drawn by client of client id);
         // the index to the inner array is the same as the authorStrokeId
         this.strokeMap = {};
-        // comments data (TODO which datastructure?)
+        // comments data
+        // an array of Comment objects with array index being equivalent to the comment id 
         this.comments = new Array();
         // array of client ids for the still active (not disconnected) clients,
         // ordered by activity (from most recently active to least recently active)
@@ -236,10 +231,6 @@ module.exports = {
                     clientsStrokeArray.push(new Stroke.StrokeData());
                     boardDirector.orderedStrokeIds.push(new Stroke.StrokeId(clientId, authorStrokeId));
                     boardDirector.boardNameSpace.emit('ordered stroke array updated', boardDirector.orderedStrokeIds);
-
-                    // TODO testing
-                    console.log('order updated! orderedStrokeIds:');
-                    console.log(boardDirector.orderedStrokeIds);
                 }
             }
 
