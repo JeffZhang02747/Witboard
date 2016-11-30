@@ -205,15 +205,14 @@ module.exports = {
                 // the initialize event is only sent when the user is granted access to the board
                 socket.emit("initialize", clientId, this.orderedStrokeIds, this.strokeMap, allowChangePassword, this.comments);
 
-                // TODO move this to be directly under boardDirector?
-                socket.on('clone board', function() {
-                    var retId = global.collection.cloneBoard(boardState.orderedStrokeIds,
-                            boardState.strokeMap, boardState.boardDirector.nextClientId);
-                    socket.emit('board created', retId);
-                });
-
                 this.updateClientActivity(clientId);
             }; // setUpAccessForUsers
+
+            this.cloneTo = function(destinationBoardState) {
+                destinationBoardState.orderedStrokeIds = this.orderedStrokeIds;
+                destinationBoardState.strokeMap = this.strokeMap;
+                // don't clone comments (this is simply a design choice)
+            }
 
             this.saveToSaveObj = function(saveObj) {
                 saveObj.orderedStrokeIds = this.orderedStrokeIds;
@@ -250,47 +249,11 @@ module.exports = {
 
         this.boardState = new BoardState(this.boardNameSpace, this);
 
-        ///////////////////// method definitions start ///////////////////
-        var boardDirector = this;
+        ///////////////////// private methods start ///////////////////
 
-        this.saveToDB = function() {
-            saveObj = {}
-            saveObj.boardId = this.boardId;
-            saveObj.nextClientId = this.nextClientId;
-            saveObj.firstId = this.firstId;
-            saveObj.password = this.password;
-            // saveObj.orderedStrokeIds = this.orderedStrokeIds;
-            // saveObj.strokeMap = this.strokeMap;
-            // saveObj.comments = this.comments;
-            // saveObj.activeClientIds = this.activeClientIds;
-            this.boardState.saveToSaveObj(saveObj);
-            db.saveBoard(saveObj.boardId, saveObj);
-        };
 
-        this.loadFromDB = function(obj) {
-            if (obj.nextClientId != undefined) {
-                this.nextClientId = obj.nextClientId;
-            }
-            if (obj.firstId != undefined) {
-                this.firstId = obj.firstId;
-            }
-            if (obj.password != undefined) {
-                this.password = obj.password;
-            }
-            // if (obj.orderedStrokeIds != undefined) {
-            //     this.orderedStrokeIds = obj.orderedStrokeIds;
-            // }
-            // if (obj.strokeMap != undefined) {
-            //     this.strokeMap = obj.strokeMap;
-            // }
-            // if (obj.comments != undefined) {
-            //     this.comments = obj.comments;
-            // }
-            this.boardState.loadFromObj(obj);
-            // if (obj.activeClientIds != undefined) {
-            //     this.activeClientIds = obj.activeClientIds;
-            // }
-        };
+
+        ///////////////////// private methods end ///////////////////
 
         // verify the user connected through socket;
         // If verification is successful, then access is granted to the user
@@ -337,11 +300,64 @@ module.exports = {
                 socket.emit('board created', retId);
             });
 
+            socket.on('clone board', function() {
+                var retId = global.collection.cloneBoard(boardDirector);
+                socket.emit('board created', retId);
+            });
+
             this.boardState.setUpAccessForUser(clientId, socket, allowChangePassword);
         };
 
+        ///////////////////// public methods start ///////////////////
 
-        //////////////////// method end definitions //////////////////////
+        var boardDirector = this;
+
+        this.saveToDB = function() {
+            saveObj = {}
+            saveObj.boardId = this.boardId;
+            saveObj.nextClientId = this.nextClientId;
+            saveObj.firstId = this.firstId;
+            saveObj.password = this.password;
+            // saveObj.orderedStrokeIds = this.orderedStrokeIds;
+            // saveObj.strokeMap = this.strokeMap;
+            // saveObj.comments = this.comments;
+            // saveObj.activeClientIds = this.activeClientIds;
+            this.boardState.saveToSaveObj(saveObj);
+            db.saveBoard(saveObj.boardId, saveObj);
+        };
+
+        this.loadFromDB = function(obj) {
+            if (obj.nextClientId != undefined) {
+                this.nextClientId = obj.nextClientId;
+            }
+            if (obj.firstId != undefined) {
+                this.firstId = obj.firstId;
+            }
+            if (obj.password != undefined) {
+                this.password = obj.password;
+            }
+            // if (obj.orderedStrokeIds != undefined) {
+            //     this.orderedStrokeIds = obj.orderedStrokeIds;
+            // }
+            // if (obj.strokeMap != undefined) {
+            //     this.strokeMap = obj.strokeMap;
+            // }
+            // if (obj.comments != undefined) {
+            //     this.comments = obj.comments;
+            // }
+            this.boardState.loadFromObj(obj);
+            // if (obj.activeClientIds != undefined) {
+            //     this.activeClientIds = obj.activeClientIds;
+            // }
+        };
+
+        this.cloneTo = function(destinationBoard) {
+            destinationBoard.nextClientId = this.nextClientId;
+            destinationBoard.firstId = this.firstId;
+            this.boardState.cloneTo(destinationBoard.boardState);
+        }
+
+        ///////////////////// public methods end ///////////////////
 
         var boardDirector = this;
         // initialization
