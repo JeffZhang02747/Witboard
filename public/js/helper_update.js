@@ -46,6 +46,10 @@
       }
 
       var strokeData = strokeMap[strokeId.authorClientId][strokeId.authorStrokeId];
+      if (typeof(strokeData) === "undefined") {
+        continue; // perhaps we haven't gotten around to adding the stroke to strokeMap yet
+      }
+
       var dataPoints = strokeData.dataPoints;
 
       if (dataPoints == null) {
