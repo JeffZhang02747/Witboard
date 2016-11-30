@@ -122,7 +122,11 @@
               comment.value = this.children[1].value;
               comment.xPos = parseInt(division.style.left);
               comment.yPos = parseInt(division.style.top);
-              socket.emit("edit comment", this.id, this.children[1].value, parseInt(this.style.left), parseInt(this.style.top) );
+
+              
+              if ( this.id != "tempId" && this.id != null ) {
+                socket.emit("edit comment", this.id, this.children[1].value, parseInt(this.style.left), parseInt(this.style.top) );
+              }
           }
           function stopDrag() {
               this.removeEventListener(mouseMove, drag);
