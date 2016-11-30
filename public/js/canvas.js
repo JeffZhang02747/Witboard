@@ -1,4 +1,6 @@
 $(document).ready(function(){
+
+
   var currBoardId = getCurrBoardId(); // TODO do something with this!
   var socket;
   if (currBoardId) {
