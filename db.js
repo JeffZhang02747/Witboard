@@ -17,8 +17,7 @@
 
 	// if key not exist, it is null
 	var boardUrl = databaseURL + "/board.json";
-	var boardIdUrl = databaseURL + "/boardId.json";
-
+	
 	module.exports.saveBoard = function (boardId, boardData) {
 		var boardRef = ref.child("board/" + boardId);
 		boardRef.set( boardData );
