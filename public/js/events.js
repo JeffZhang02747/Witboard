@@ -98,6 +98,8 @@ function bindCanvasDraw(){
       rerenderComments();
       return;
     }
+    // prevent interrupted by comments
+    $('.info').css('pointer-events', 'none');
 
     var mouseX = e.pageX - this.offsetLeft;
     var mouseY = e.pageY - this.offsetTop;
@@ -138,10 +140,12 @@ function bindCanvasDraw(){
   });
 
   $('#canvas').bind(mouseUp, function(e){
+    $('.info').css('pointer-events', 'auto');
     paint = false;
   });
 
   $('#canvas').bind(mouseLeave, function(e){
+    $('.info').css('pointer-events', 'auto');
     paint = false;
   });
 }

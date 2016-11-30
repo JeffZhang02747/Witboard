@@ -136,3 +136,7 @@ label[for=color07] {background: white;}
 section.avatar-section{
 	float: right;
 }
+
+.userComment{
+    opacity: 0.7;
+}
