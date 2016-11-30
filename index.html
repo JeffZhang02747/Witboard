@@ -46,7 +46,7 @@
         <input type="button" id="hideTextArea" value="Hide Comments" class="btn btn-primary active">
 
         <a class="avatar-section"></a>
-        
+
     </section>
     <canvas class="canvasSection" id="canvas" width="1400" height="1000"></canvas>
 
@@ -64,21 +64,6 @@
     </div>
   </div>
 </div>
-
-  <script type="text/javascript">
-    $(document).ready(function() {
-      $("#emojionearea1").emojioneArea({
-        pickerPosition: "left",
-        tonesStyle: "bullet"
-      });
-
-      $(".userComment").emojioneArea({
-        pickerPosition: "left",
-        tonesStyle: "bullet"
-      });
-    });
-  </script>
-
   </body>
 
 
@@ -93,6 +78,21 @@
   <script type='text/javascript' src='./lib/png.js'></script>
   <script type='text/javascript' src='./lib/zlib.js'></script>
   <script type="text/javascript" src="./lib/emojionearea.min.js"></script>
-  <script type='text/javascript' src='./canvas.js'></script>
+  <script type='text/javascript' src='./js/canvas.js'></script>
+
+
+  <script type="text/javascript">
+    $(document).ready(function() {
+      $("#emojionearea1").emojioneArea({
+        pickerPosition: "left",
+        tonesStyle: "bullet"
+      });
+
+      $(".userComment").emojioneArea({
+        pickerPosition: "left",
+        tonesStyle: "bullet"
+      });
+    });
+  </script>
 
 </html>
