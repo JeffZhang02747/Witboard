@@ -231,7 +231,7 @@ module.exports = {
                 if (obj.comments != undefined) {
                     this.comments = obj.comments;
                 }
-                // don't want to load activeClientIds
+                // don't want to load activeClientIds (TODO then don't save it in the first place?)
             }
 
             ///////////////////// public methods end ///////////////////
@@ -336,19 +336,7 @@ module.exports = {
             if (obj.password != undefined) {
                 this.password = obj.password;
             }
-            // if (obj.orderedStrokeIds != undefined) {
-            //     this.orderedStrokeIds = obj.orderedStrokeIds;
-            // }
-            // if (obj.strokeMap != undefined) {
-            //     this.strokeMap = obj.strokeMap;
-            // }
-            // if (obj.comments != undefined) {
-            //     this.comments = obj.comments;
-            // }
             this.boardState.loadFromObj(obj);
-            // if (obj.activeClientIds != undefined) {
-            //     this.activeClientIds = obj.activeClientIds;
-            // }
         };
 
         this.cloneTo = function(destinationBoard) {
