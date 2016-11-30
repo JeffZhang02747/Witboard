@@ -21,13 +21,7 @@ $(document).ready(function(){
     $('body').bind('touchmove', function(e){e.preventDefault()})
   }
 
-  bindColor();
-  bindDownload();
-  bindHideComment();
-  bindNewBoard();
-  bindCloneBoard();
-  bindShareBoard();
-  bindAddComment();
+  listenerBinding();
 
   canvasReact();
 
@@ -115,8 +109,6 @@ $(document).ready(function(){
 
   });
 
-
-
   socket.on('board created', function(newBoardId) {
     // socket = io(window.location.hostname + newBoardId);
     // debugger;
@@ -139,8 +131,6 @@ $(document).ready(function(){
     });
   });
 
-  bindClientButton();
-  bindSetPassword();
 
   socket.on('password required', function() {
     passwordRequired = true;

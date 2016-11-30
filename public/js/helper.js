@@ -1,4 +1,16 @@
 
+  function listenerBinding(){
+    bindColor();
+    bindDownload();
+    bindHideComment();
+    bindNewBoard();
+    bindCloneBoard();
+    bindShareBoard();
+    bindAddComment();
+    bindClientButton();
+    bindSetPassword();
+  }
+
   function canvasReact(){
     $('#canvas').off(mouseDown);
     $('#canvas').off(mouseUp);
