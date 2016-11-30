@@ -54,12 +54,9 @@ module.exports = {
         });
 
         // clone a new board given drawingData
-        this.cloneBoard = function(orderedStrokeIds, strokeMap, nextId) {
+        this.cloneBoard = function(boardDirector) {
             var retId = newBoard();
-            boardDirectorMap[retId].orderedStrokeIds = orderedStrokeIds;
-            boardDirectorMap[retId].strokeMap = strokeMap;
-            boardDirectorMap[retId].nextClientId = nextId;
-            boardDirectorMap[retId].firstId = nextId;
+            boardDirector.cloneTo(boardDirectorMap[retId]);
             boardDirectorMap[retId].saveToDB();
             return retId;
         }
