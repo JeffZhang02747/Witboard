@@ -341,7 +341,8 @@ module.exports = {
 
         this.cloneTo = function(destinationBoard) {
             destinationBoard.nextClientId = this.nextClientId;
-            destinationBoard.firstId = this.firstId;
+            destinationBoard.firstId = this.nextClientId; // destinationBoard's
+                                // first user will have this.nextClientId as id
             this.boardState.cloneTo(destinationBoard.boardState);
         }
 
