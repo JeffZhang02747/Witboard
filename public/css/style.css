@@ -114,6 +114,11 @@ button.color{
 }
 
 a.popFade{
+    -moz-border-radius: 50%;
+    -webkit-border-radius: 50%;
+    border-radius: 50%;
+
+    font-size: 14pt;
 	position: absolute;
 	display: none;
 }
