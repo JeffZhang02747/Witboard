@@ -3,8 +3,6 @@ html {
 	height: 100%;
 }
 body{
-    display: inline-block;
-    white-space:nowrap;
 	font-family: Palatino Linotype;
     background: linear-gradient(to right, yellowgreen , white);
 	overflow-x: hidden;
