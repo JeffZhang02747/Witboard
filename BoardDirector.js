@@ -251,10 +251,6 @@ module.exports = {
 
         ///////////////////// private methods start ///////////////////
 
-
-
-        ///////////////////// private methods end ///////////////////
-
         // verify the user connected through socket;
         // If verification is successful, then access is granted to the user
         this.verifyUser = function(socket) {
@@ -307,6 +303,8 @@ module.exports = {
 
             this.boardState.setUpAccessForUser(clientId, socket, allowChangePassword);
         };
+
+        ///////////////////// private methods end ///////////////////
 
         ///////////////////// public methods start ///////////////////
 
