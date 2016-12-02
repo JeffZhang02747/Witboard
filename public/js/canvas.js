@@ -29,16 +29,6 @@ $(document).ready(function(){
     showHighlight(x, y, clientId)
   });
 
-  $('#highlightButton').bind(click, function(e){
-    highlightMode = !highlightMode;
-    rerenderButtonStates();
-    canvasReact();
-  });
-
-  $(document).on(click, '#verify-submit', function(e){
-    socket.emit('verify with password', $('#password-input').val());
-  });
-
   socket.on("new comment", function(commentId, comment){
     comments[commentId] = comment;
     rerenderComments();

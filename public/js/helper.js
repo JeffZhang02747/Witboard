@@ -9,6 +9,22 @@
     bindAddComment();
     bindClientButton();
     bindSetPassword();
+    bindHighlightButton();
+    bindVerifySubmit();
+  }
+
+  function bindHighlightButton(){
+    $('#highlightButton').bind(click, function(e){
+      highlightMode = !highlightMode;
+      rerenderButtonStates();
+      canvasReact();
+    });
+  }
+
+  function bindVerifySubmit(){
+    $(document).on(click, '#verify-submit', function(e){
+      socket.emit('verify with password', $('#password-input').val());
+    });
   }
 
   function canvasReact(){
