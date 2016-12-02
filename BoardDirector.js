@@ -251,10 +251,6 @@ module.exports = {
 
         ///////////////////// private methods start ///////////////////
 
-
-
-        ///////////////////// private methods end ///////////////////
-
         // verify the user connected through socket;
         // If verification is successful, then access is granted to the user
         this.verifyUser = function(socket) {
@@ -308,6 +304,8 @@ module.exports = {
             this.boardState.setUpAccessForUser(clientId, socket, allowChangePassword);
         };
 
+        ///////////////////// private methods end ///////////////////
+
         ///////////////////// public methods start ///////////////////
 
         var boardDirector = this;
@@ -341,7 +339,8 @@ module.exports = {
 
         this.cloneTo = function(destinationBoard) {
             destinationBoard.nextClientId = this.nextClientId;
-            destinationBoard.firstId = this.firstId;
+            destinationBoard.firstId = this.nextClientId; // destinationBoard's
+                                // first user will have this.nextClientId as id
             this.boardState.cloneTo(destinationBoard.boardState);
         }
 
